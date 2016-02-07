@@ -9,12 +9,17 @@
 
 package com.example.afs.makingmusic.process;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
 import com.example.afs.makingmusic.common.Step;
 
 public class CameraReader extends Step<Frame> {
+
+  static {
+    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+  }
 
   private VideoCapture camera;
 

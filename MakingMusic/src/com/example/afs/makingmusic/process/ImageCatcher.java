@@ -9,27 +9,27 @@
 
 package com.example.afs.makingmusic.process;
 
+import java.awt.image.BufferedImage;
 import java.util.concurrent.BlockingQueue;
-
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.example.afs.makingmusic.common.Step;
 
-public class ImageAnnotator extends Step<Frame> {
+public class ImageCatcher extends Step<Frame> {
 
-  public ImageAnnotator(BlockingQueue<Frame> inputQueue) {
+  private static AtomicReference<BufferedImage> currentImage = new AtomicReference<>();
+
+  public static BufferedImage getImage() {
+    return currentImage.get();
+  }
+
+  public ImageCatcher(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
   }
 
   @Override
   public void process(Frame frame) {
-    Mat image = frame.getImage();
-    for (Rect item : frame.getItems()) {
-      Imgproc.rectangle(image, item.br(), item.tl(), new Scalar(0, 255, 0), 1);
-    }
+    BufferedImage bufferedImage = frame.getBufferedImage();
+    currentImage.set(bufferedImage);
   }
-
 }

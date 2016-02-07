@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Making Music</title>
+<script>
+function refreshImage() {
+	var img = document.getElementById("img");
+	img.src="currentFrame.jpg?t=" + new Date().getTime();
+	setTimeout(refreshImage, 1000);
+}
+</script>
+</head>
+<body onload="refreshImage()">
+<img id="img" src="currentFrame.jpg" alt="Current Frame"/>
+</body>
+</html>

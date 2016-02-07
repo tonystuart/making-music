@@ -9,6 +9,7 @@
 
 package com.example.afs.makingmusic.process;
 
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,23 +17,32 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
 public class Frame {
-  private Mat image;
+  private BufferedImage bufferedImage;
+  private Mat imageMatrix;
   private List<Rect> items = new LinkedList<>();
 
   public Frame(Mat image) {
-    this.image = image;
+    this.imageMatrix = image;
   }
 
   public void addItem(Rect item) {
     items.add(item);
   }
 
-  public Mat getImage() {
-    return image;
+  public BufferedImage getBufferedImage() {
+    return bufferedImage;
+  }
+
+  public Mat getImageMatrix() {
+    return imageMatrix;
   }
 
   public Iterable<Rect> getItems() {
     return items;
+  }
+
+  public void setBufferedImage(BufferedImage bufferedImage) {
+    this.bufferedImage = bufferedImage;
   }
 
 }

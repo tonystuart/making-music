@@ -38,7 +38,7 @@ public class BackgroundDetector extends Step<Frame> {
 
   @Override
   public void process(Frame frame) {
-    Mat image = frame.getImage();
+    Mat image = frame.getImageMatrix();
     Core.flip(image, image, 1);
     backgroundSubtractor.apply(image, foregroundMask);
     List<MatOfPoint> contours = new ArrayList<MatOfPoint>();

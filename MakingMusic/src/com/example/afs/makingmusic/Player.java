@@ -9,19 +9,13 @@
 
 package com.example.afs.makingmusic;
 
-import org.opencv.core.Core;
-
 import com.example.afs.makingmusic.process.BackgroundDetector;
 import com.example.afs.makingmusic.process.CameraReader;
-import com.example.afs.makingmusic.process.ImageAnnotator;
+import com.example.afs.makingmusic.process.ImageGenerator;
 import com.example.afs.makingmusic.process.ImageViewer;
 import com.example.afs.makingmusic.process.MusicGenerator;
 
 public class Player {
-
-  static {
-    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-  }
 
   public static void main(String[] args) {
     Player player = new Player();
@@ -39,10 +33,10 @@ public class Player {
     MusicGenerator musicGenerator = new MusicGenerator(backgroundDetector.getOutputQueue());
     musicGenerator.start();
 
-    ImageAnnotator imageAnnotator = new ImageAnnotator(musicGenerator.getOutputQueue());
-    imageAnnotator.start();
+    ImageGenerator imageGenerator = new ImageGenerator(musicGenerator.getOutputQueue());
+    imageGenerator.start();
 
-    ImageViewer imageViewer = new ImageViewer(imageAnnotator.getOutputQueue());
+    ImageViewer imageViewer = new ImageViewer(imageGenerator.getOutputQueue());
     imageViewer.start();
   }
 

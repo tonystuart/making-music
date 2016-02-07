@@ -39,8 +39,8 @@ public class MusicGenerator extends Step<Frame> {
 
   @Override
   public void process(Frame frame) {
-    int height = frame.getImage().height();
-    int width = frame.getImage().width();
+    int height = frame.getImageMatrix().height();
+    int width = frame.getImageMatrix().width();
     long tick = System.currentTimeMillis();
     List<ActiveSound> expiringSounds = new ArrayList<>(activeSounds.size());
     for (ActiveSound activeSound : activeSounds) {

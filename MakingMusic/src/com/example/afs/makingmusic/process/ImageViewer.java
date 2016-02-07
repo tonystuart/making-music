@@ -10,15 +10,11 @@
 package com.example.afs.makingmusic.process;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.util.concurrent.BlockingQueue;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-
-import org.opencv.core.Mat;
 
 import com.example.afs.makingmusic.common.Step;
 
@@ -38,26 +34,11 @@ public class ImageViewer extends Step<Frame> {
 
   @Override
   public void process(Frame frame) {
-    Mat image = frame.getImage();
-    BufferedImage bufferedImage = toBufferedImage(image);
+    BufferedImage bufferedImage = frame.getBufferedImage();
     ImageIcon imageIcon = new ImageIcon(bufferedImage);
     window.setSize(bufferedImage.getWidth(), bufferedImage.getHeight());
     label.setIcon(imageIcon);
     label.repaint();
-  }
-
-  private BufferedImage toBufferedImage(Mat matrix) {
-    int width = matrix.cols();
-    int height = matrix.rows();
-    int channels = matrix.channels();
-    int bitmapSize = height * width * channels;
-    byte[] bitmap = new byte[bitmapSize];
-    matrix.get(0, 0, bitmap);
-    BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-    WritableRaster raster = image.getRaster();
-    DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
-    System.arraycopy(bitmap, 0, dataBuffer.getData(), 0, bitmap.length);
-    return image;
   }
 
 }
