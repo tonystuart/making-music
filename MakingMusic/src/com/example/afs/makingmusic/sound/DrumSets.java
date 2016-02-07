@@ -11,30 +11,30 @@ package com.example.afs.makingmusic.sound;
 
 public class DrumSets {
 
-	public static final Instrument largeDrumSet = new Instrument("Large Drum Set", 9, 0, 32, //
-			Drum.acousticSnare, //
-			Drum.sideStick, //
-			Drum.closedHiHat, //
-			Drum.lowFloorTom, //
-			Drum.lowTom, //
-			Drum.lowMidTom, //
-			Drum.acousticBassDrum, //
-			Drum.hiMidTom, //
-			Drum.highTom, //
-			Drum.highFloorTom, //
-			Drum.crashCymbal1);
+  public static final Instrument largeDrumSet = new Instrument("Large Drum Set", 9, 0, 32, //
+      Drum.acousticSnare, //
+      Drum.sideStick, //
+      Drum.closedHiHat, //
+      Drum.lowFloorTom, //
+      Drum.lowTom, //
+      Drum.lowMidTom, //
+      Drum.acousticBassDrum, //
+      Drum.hiMidTom, //
+      Drum.highTom, //
+      Drum.highFloorTom, //
+      Drum.crashCymbal1);
 
-	public static final Instrument mediumDrumSet = new Instrument("Medium Drum Set", 9, 0, 32, //
-			Drum.acousticSnare, //
-			Drum.closedHiHat, //
-			Drum.lowTom, //
-			Drum.acousticBassDrum, //
-			Drum.highTom, //
-			Drum.crashCymbal1);
+  public static final Instrument mediumDrumSet = new Instrument("Medium Drum Set", 9, 0, 32, //
+      Drum.acousticSnare, //
+      Drum.closedHiHat, //
+      Drum.lowTom, //
+      Drum.acousticBassDrum, //
+      Drum.highTom, //
+      Drum.crashCymbal1);
 
-	public static final Instrument smallDrumSet = new Instrument("Small Drum Set", 9, 0, 32, //
-			Drum.acousticSnare, //
-			Drum.acousticBassDrum, //
-			Drum.crashCymbal1);
+  public static final Instrument smallDrumSet = new Instrument("Small Drum Set", 9, 0, 32, //
+      Drum.acousticSnare, //
+      Drum.acousticBassDrum, //
+      Drum.crashCymbal1);
 
 }

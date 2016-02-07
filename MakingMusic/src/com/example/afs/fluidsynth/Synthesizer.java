@@ -9,7 +9,6 @@
 
 package com.example.afs.fluidsynth;
 
-
 public class Synthesizer {
 
   public static class Settings {
@@ -35,8 +34,8 @@ public class Synthesizer {
   private static Settings createDefaultSettings() {
     Settings settings = new Settings();
     settings.set("audio.driver", "alsa");
-    //settings.set("synth.chorus.active", "no");
-    //settings.set("synth.reverb.active", "no");
+    // settings.set("synth.chorus.active", "no");
+    // settings.set("synth.reverb.active", "no");
     return settings;
   }
 

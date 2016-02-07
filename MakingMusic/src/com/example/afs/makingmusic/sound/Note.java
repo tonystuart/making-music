@@ -9,10 +9,22 @@
 
 package com.example.afs.makingmusic.sound;
 
-
 public class Note extends Sound {
 
-  public static String[] NAMES = new String[] {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+  public static String[] NAMES = new String[] {
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "A",
+      "A#",
+      "B"
+  };
 
   public static String getName(int value) {
     String note = NAMES[value % 12];

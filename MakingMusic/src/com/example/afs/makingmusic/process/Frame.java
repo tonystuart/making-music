@@ -16,23 +16,23 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
 public class Frame {
-	private Mat image;
-	private List<Rect> items = new LinkedList<>();
+  private Mat image;
+  private List<Rect> items = new LinkedList<>();
 
-	public Frame(Mat image) {
-		this.image = image;
-	}
+  public Frame(Mat image) {
+    this.image = image;
+  }
 
-	public void addItem(Rect item) {
-		items.add(item);
-	}
+  public void addItem(Rect item) {
+    items.add(item);
+  }
 
-	public Mat getImage() {
-		return image;
-	}
+  public Mat getImage() {
+    return image;
+  }
 
-	public Iterable<Rect> getItems() {
-		return items;
-	}
+  public Iterable<Rect> getItems() {
+    return items;
+  }
 
 }

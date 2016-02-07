@@ -25,33 +25,33 @@ import com.example.afs.makingmusic.common.Step;
 
 public class BackgroundDetector extends Step<Frame> {
 
-	public static final double MINIMUM_AREA = 100;
-	
-	private BackgroundSubtractorMOG2 backgroundSubtractor;
-	private Mat foregroundMask;
+  public static final double MINIMUM_AREA = 100;
 
-	public BackgroundDetector(BlockingQueue<Frame> inputQueue) {
-		super(inputQueue);
-		backgroundSubtractor = Video.createBackgroundSubtractorMOG2(5, 16, false);
-		foregroundMask = new Mat();
-	}
+  private BackgroundSubtractorMOG2 backgroundSubtractor;
+  private Mat foregroundMask;
 
-	@Override
-	public void process(Frame frame) {
-		Mat image = frame.getImage();
-		Core.flip(image, image, 1);
-		backgroundSubtractor.apply(image, foregroundMask);
-		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(foregroundMask.clone(), contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-		int contourCount = contours.size();
-		for (int contourIndex = 0; contourIndex < contourCount; contourIndex++) {
-			MatOfPoint contour = contours.get(contourIndex);
-			double contourArea = Imgproc.contourArea(contour);
-			if (contourArea > BackgroundDetector.MINIMUM_AREA) {
-				Rect item = Imgproc.boundingRect(contour);
-				frame.addItem(item);
-			}
-		}
-	}
+  public BackgroundDetector(BlockingQueue<Frame> inputQueue) {
+    super(inputQueue);
+    backgroundSubtractor = Video.createBackgroundSubtractorMOG2(5, 16, false);
+    foregroundMask = new Mat();
+  }
+
+  @Override
+  public void process(Frame frame) {
+    Mat image = frame.getImage();
+    Core.flip(image, image, 1);
+    backgroundSubtractor.apply(image, foregroundMask);
+    List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+    Imgproc.findContours(foregroundMask.clone(), contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+    int contourCount = contours.size();
+    for (int contourIndex = 0; contourIndex < contourCount; contourIndex++) {
+      MatOfPoint contour = contours.get(contourIndex);
+      double contourArea = Imgproc.contourArea(contour);
+      if (contourArea > BackgroundDetector.MINIMUM_AREA) {
+        Rect item = Imgproc.boundingRect(contour);
+        frame.addItem(item);
+      }
+    }
+  }
 
 }

@@ -20,16 +20,16 @@ import com.example.afs.makingmusic.common.Step;
 
 public class ImageAnnotator extends Step<Frame> {
 
-	public ImageAnnotator(BlockingQueue<Frame> inputQueue) {
-		super(inputQueue);
-	}
+  public ImageAnnotator(BlockingQueue<Frame> inputQueue) {
+    super(inputQueue);
+  }
 
-	@Override
-	public void process(Frame frame) {
-		Mat image = frame.getImage();
-		for (Rect item : frame.getItems()) {
-			Imgproc.rectangle(image, item.br(), item.tl(), new Scalar(0, 255, 0), 1);
-		}
-	}
+  @Override
+  public void process(Frame frame) {
+    Mat image = frame.getImage();
+    for (Rect item : frame.getItems()) {
+      Imgproc.rectangle(image, item.br(), item.tl(), new Scalar(0, 255, 0), 1);
+    }
+  }
 
 }

@@ -20,15 +20,15 @@ public class FluidSynth {
   public static native void deleteFluidSynth(long synth);
 
   public static native void fluidSettingsSetstr(long settings, String name, String str);
-  
+
   public static native int fluidSynthCc(long synth, int chan, int num, int val);
 
   public static native int fluidSynthNoteoff(long synth, int chan, int key);
 
   public static native int fluidSynthNoteon(long synth, int chan, int key, int vel);
-  
+
   public static native int fluidSynthProgramChange(long synth, int chan, int program);
-  
+
   public static native long fluidSynthSfload(long synth, String filename, int resetPresets);
 
   public static native long newFluidAudioDriver(long settings, long synth);

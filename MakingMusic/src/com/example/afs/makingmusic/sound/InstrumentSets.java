@@ -11,22 +11,22 @@ package com.example.afs.makingmusic.sound;
 
 public class InstrumentSets {
 
-	public static Instrument[] large = new Instrument[] {
-			Instrument.piano,
-			Instrument.violin,
-			Instrument.flute,
-			Instrument.sax,
-			Instrument.frenchHorn,
-			Instrument.synthBass1,
-			DrumSets.smallDrumSet
-	};
+  public static Instrument[] large = new Instrument[] {
+      Instrument.piano,
+      Instrument.violin,
+      Instrument.flute,
+      Instrument.sax,
+      Instrument.frenchHorn,
+      Instrument.synthBass1,
+      DrumSets.smallDrumSet
+  };
 
-	public static Instrument[] medium = new Instrument[] {
-			Instrument.piano,
-			DrumSets.smallDrumSet
-	};
+  public static Instrument[] medium = new Instrument[] {
+      Instrument.piano,
+      DrumSets.smallDrumSet
+  };
 
-	public static Instrument[] small = new Instrument[] {
-		Instrument.piano,
-	};
+  public static Instrument[] small = new Instrument[] {
+    Instrument.piano,
+  };
 }

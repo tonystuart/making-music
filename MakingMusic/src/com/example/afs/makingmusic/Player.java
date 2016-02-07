@@ -19,31 +19,31 @@ import com.example.afs.makingmusic.process.MusicGenerator;
 
 public class Player {
 
-	static {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-	}
+  static {
+    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+  }
 
-	public static void main(String[] args) {
-		Player player = new Player();
-		player.play();
-	}
+  public static void main(String[] args) {
+    Player player = new Player();
+    player.play();
+  }
 
-	public void play() {
+  public void play() {
 
-		CameraReader cameraReader = new CameraReader();
-		cameraReader.start(125);
+    CameraReader cameraReader = new CameraReader();
+    cameraReader.start(125);
 
-		BackgroundDetector backgroundDetector = new BackgroundDetector(cameraReader.getOutputQueue());
-		backgroundDetector.start();
+    BackgroundDetector backgroundDetector = new BackgroundDetector(cameraReader.getOutputQueue());
+    backgroundDetector.start();
 
-		MusicGenerator musicGenerator = new MusicGenerator(backgroundDetector.getOutputQueue());
-		musicGenerator.start();
+    MusicGenerator musicGenerator = new MusicGenerator(backgroundDetector.getOutputQueue());
+    musicGenerator.start();
 
-		ImageAnnotator imageAnnotator = new ImageAnnotator(musicGenerator.getOutputQueue());
-		imageAnnotator.start();
+    ImageAnnotator imageAnnotator = new ImageAnnotator(musicGenerator.getOutputQueue());
+    imageAnnotator.start();
 
-		ImageViewer imageViewer = new ImageViewer(imageAnnotator.getOutputQueue());
-		imageViewer.start();
-	}
+    ImageViewer imageViewer = new ImageViewer(imageAnnotator.getOutputQueue());
+    imageViewer.start();
+  }
 
 }

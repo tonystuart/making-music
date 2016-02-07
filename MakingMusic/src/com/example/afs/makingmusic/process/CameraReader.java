@@ -16,22 +16,22 @@ import com.example.afs.makingmusic.common.Step;
 
 public class CameraReader extends Step<Frame> {
 
-	private VideoCapture camera;
+  private VideoCapture camera;
 
-	public CameraReader() {
-		this.camera = new VideoCapture(0);
-	}
+  public CameraReader() {
+    this.camera = new VideoCapture(0);
+  }
 
-	@Override
-	public Frame process() throws InterruptedException {
-		Mat image = new Mat();
-		while (!camera.read(image)) {
-			System.err.println("Cannot read image. Is the camera plugged in?");
-			sleep(100);
-			camera.release();
-			camera = new VideoCapture(0);
-		}
-		return new Frame(image);
-	}
+  @Override
+  public Frame process() throws InterruptedException {
+    Mat image = new Mat();
+    while (!camera.read(image)) {
+      System.err.println("Cannot read image. Is the camera plugged in?");
+      sleep(100);
+      camera.release();
+      camera = new VideoCapture(0);
+    }
+    return new Frame(image);
+  }
 
 }

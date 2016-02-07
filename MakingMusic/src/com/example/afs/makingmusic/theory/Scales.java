@@ -11,7 +11,7 @@ package com.example.afs.makingmusic.theory;
 
 public class Scales {
 
-  // C  C# D  D# E  F  F# G  G# A  A# B
+  // C C# D D# E F F# G G# A A# B
   // 60 61 62 63 64 65 66 67 68 69 70 71
 
   public static final Scale harmonicMinor = new Scale("Harmonic Minor", 2, 1, 2, 2, 1, 3, 1);
