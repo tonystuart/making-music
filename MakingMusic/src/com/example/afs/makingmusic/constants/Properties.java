@@ -7,12 +7,11 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.makingmusic.sound;
+package com.example.afs.makingmusic.constants;
 
-public class Drum extends Sound {
+public class Properties {
 
-  public Drum(String name, int value) {
-    super(name, value);
-  }
+  public static final String INSTRUMENT_PREFIX = "instrument-";
+  public static final String MAXIMUM_CONCURRENT_NOTES = "maximum-concurrent-notes";
 
 }

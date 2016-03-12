@@ -23,14 +23,14 @@ import org.opencv.video.Video;
 
 import com.example.afs.makingmusic.common.Step;
 
-public class BackgroundDetector extends Step<Frame> {
+public class MotionDetector extends Step<Frame> {
 
   public static final double MINIMUM_AREA = 100;
 
   private BackgroundSubtractorMOG2 backgroundSubtractor;
   private Mat foregroundMask;
 
-  public BackgroundDetector(BlockingQueue<Frame> inputQueue) {
+  public MotionDetector(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
     backgroundSubtractor = Video.createBackgroundSubtractorMOG2(5, 16, false);
     foregroundMask = new Mat();
@@ -47,7 +47,7 @@ public class BackgroundDetector extends Step<Frame> {
     for (int contourIndex = 0; contourIndex < contourCount; contourIndex++) {
       MatOfPoint contour = contours.get(contourIndex);
       double contourArea = Imgproc.contourArea(contour);
-      if (contourArea > BackgroundDetector.MINIMUM_AREA) {
+      if (contourArea > MotionDetector.MINIMUM_AREA) {
         Rect item = Imgproc.boundingRect(contour);
         frame.addItem(item);
       }

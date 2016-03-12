@@ -13,11 +13,18 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.example.afs.makingmusic.common.MessageBroker.Subscriber;
+import com.example.afs.makingmusic.constants.Properties;
 
 public class Step<T> extends Thread {
 
   private BlockingQueue<T> inputQueue;
   private BlockingQueue<T> outputQueue;
+  private AtomicReference<ConcurrentLinkedQueue<PropertyChange>> propertyChangeQueue = new AtomicReference<ConcurrentLinkedQueue<PropertyChange>>();
+  private Subscriber<PropertyChange> propertyChangeSubscriber;
   private boolean terminated;
   private TimeKeeper timeKeeper;
 
@@ -47,8 +54,31 @@ public class Step<T> extends Thread {
 
   @Override
   public void run() {
+    initialize();
     while (!terminated) {
       runBody();
+    }
+    cleanup();
+  }
+
+  public void setMonitorPropertyChanges(boolean isMonitorPropertyChanges) {
+    if (isMonitorPropertyChanges) {
+      if (propertyChangeQueue.get() == null) {
+        propertyChangeSubscriber = new Subscriber<PropertyChange>() {
+          @Override
+          public void onMessage(PropertyChange message) {
+            propertyChangeQueue.get().add(message);
+          }
+        };
+        propertyChangeQueue.set(new ConcurrentLinkedQueue<PropertyChange>());
+        Injector.getMessageBroker().subscribe(PropertyChange.class, propertyChangeSubscriber);
+      }
+    } else {
+      if (propertyChangeQueue.get() != null) {
+        Injector.getMessageBroker().unsubscribe(PropertyChange.class, propertyChangeSubscriber);
+        propertyChangeQueue.set(null);
+        propertyChangeSubscriber = null;
+      }
     }
   }
 
@@ -66,6 +96,23 @@ public class Step<T> extends Thread {
     terminated = true;
   }
 
+  protected void cleanup() {
+  }
+
+  protected void doPropertyChange(PropertyChange propertyChange) {
+    try {
+      onPropertyChange(propertyChange);
+    } catch (RuntimeException e) {
+      // ignore invalid property change
+    }
+  }
+
+  protected void initialize() {
+  }
+
+  protected void onPropertyChange(PropertyChange propertyChange) {
+  }
+
   private void runBody() {
     try {
       T message;
@@ -78,6 +125,13 @@ public class Step<T> extends Thread {
         timeKeeper.beginInput();
         message = inputQueue.take();
         timeKeeper.endInput();
+        timeKeeper.beginProperty();
+        if (propertyChangeQueue.get() != null) {
+          while (propertyChangeQueue.get().size() > 0) {
+            onPropertyChange(propertyChangeQueue.get().remove());
+          }
+        }
+        timeKeeper.endProperty();
         timeKeeper.beginProcess();
         process(message);
         timeKeeper.endProcess();

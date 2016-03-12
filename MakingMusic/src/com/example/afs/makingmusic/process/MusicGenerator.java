@@ -11,6 +11,7 @@ package com.example.afs.makingmusic.process;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -18,23 +19,72 @@ import java.util.concurrent.BlockingQueue;
 import org.opencv.core.Rect;
 
 import com.example.afs.fluidsynth.Synthesizer;
+import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.MulDiv;
+import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.Step;
+import com.example.afs.makingmusic.constants.Constants;
+import com.example.afs.makingmusic.constants.Properties;
 import com.example.afs.makingmusic.sound.Instrument;
-import com.example.afs.makingmusic.sound.InstrumentSets;
 import com.example.afs.makingmusic.sound.Sound;
 
 public class MusicGenerator extends Step<Frame> {
 
+  public static class ChannelAssignments {
+
+    private int[] channels;
+    private Instrument[] instruments;
+    private Synthesizer synthesizer;
+
+    public ChannelAssignments(Synthesizer synthesizer) {
+      this.synthesizer = synthesizer;
+    }
+
+    public void assignChannels(Instrument[] instruments) {
+      this.instruments = instruments;
+      this.channels = new int[instruments.length];
+      int nextChannel = 0;
+      for (int i = 0; i < instruments.length; i++) {
+        if (instruments[i].isDrumKit()) {
+          channels[i] = Constants.DRUM_CHANNEL_INDEX;
+        } else {
+          channels[i] = nextChannel++;
+          if (nextChannel == Constants.DRUM_CHANNEL_INDEX) {
+            nextChannel++;
+          }
+          int programIndex = instruments[i].getProgramIndex();
+          synthesizer.changeProgram(channels[i], programIndex);
+        }
+      }
+    }
+
+    public int getChannel(int index) {
+      return channels[index];
+    }
+
+    public Instrument getInstrument(int index) {
+      return instruments[index];
+    }
+
+    public int size() {
+      return instruments == null ? 0 : instruments.length;
+    }
+
+  }
+
   private Set<ActiveSound> activeSounds;
-  private Instrument[] instruments;
+  private ChannelAssignments channelAssignments;
+  private Set<String> instrumentNames;
+  private int maximumConcurrentNotes;
   private Synthesizer synthesizer;
 
   public MusicGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
+    setMonitorPropertyChanges(true);
     activeSounds = new HashSet<>();
+    instrumentNames = new HashSet<>();
     synthesizer = new Synthesizer();
-    setInstruments(InstrumentSets.medium);
+    channelAssignments = new ChannelAssignments(synthesizer);
   }
 
   @Override
@@ -50,27 +100,45 @@ public class MusicGenerator extends Step<Frame> {
       }
     }
     activeSounds.removeAll(expiringSounds);
-    for (Rect item : frame.getItems()) {
-      Instrument instrument = MulDiv.scale(height, item.y, instruments);
-      Sound sound = MulDiv.scale(width, item.x, instrument.getSounds());
-      int channel = instrument.getChannel();
-      int value = sound.getValue();
-      ActiveSound activeSound = new ActiveSound(channel, value, tick + 1000);
-      if (channel == 9 || !activeSounds.contains(activeSound)) {
-        activeSounds.add(activeSound);
-        synthesizer.pressKey(channel, value, instrument.getVelocity());
+    if (channelAssignments.size() > 0) {
+      Iterator<Rect> itemIterator = frame.getItems().iterator();
+      while (itemIterator.hasNext() && activeSounds.size() < maximumConcurrentNotes) {
+        Rect item = itemIterator.next();
+        int index = MulDiv.scale(height, item.y, channelAssignments.size());
+        Instrument instrument = channelAssignments.getInstrument(index);
+        int channel = channelAssignments.getChannel(index);
+        Sound sound = MulDiv.scale(width, item.x, instrument.getSounds());
+        int value = sound.getValue();
+        ActiveSound activeSound = new ActiveSound(channel, value, tick + Constants.NOTE_DURATION_MILLIS);
+        if (channel == Constants.DRUM_CHANNEL_INDEX || !activeSounds.contains(activeSound)) {
+          activeSounds.add(activeSound);
+          synthesizer.pressKey(channel, value, instrument.getVelocity());
+        }
       }
+      // System.out.println(expiringSounds.size() + "/" + activeSounds.size());
     }
   }
 
-  public void setInstruments(Instrument[] instruments) {
-    this.instruments = instruments;
-    for (Instrument instrument : instruments) {
-      int channel = instrument.getChannel();
-      if (channel != 9) {
-        int program = instrument.getProgram();
-        synthesizer.changeProgram(channel, program);
+  @Override
+  protected void onPropertyChange(PropertyChange propertyChange) {
+    if (propertyChange.getName().startsWith(Properties.INSTRUMENT_PREFIX)) {
+      updateActiveInstruments(propertyChange);
+    } else if (propertyChange.getName().equals(Properties.MAXIMUM_CONCURRENT_NOTES)) {
+      maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
+    }
+  }
+
+  private void updateActiveInstruments(PropertyChange propertyChange) {
+    String name = propertyChange.getName().substring(Properties.INSTRUMENT_PREFIX.length());
+    if (Injector.getInstruments().contains(name)) {
+      boolean isActive = Boolean.parseBoolean(propertyChange.getValue());
+      if (isActive) {
+        instrumentNames.add(name);
+      } else {
+        instrumentNames.remove(name);
       }
+      Instrument[] instruments = Injector.getInstruments().getInstruments(instrumentNames);
+      channelAssignments.assignChannels(instruments);
     }
   }
 

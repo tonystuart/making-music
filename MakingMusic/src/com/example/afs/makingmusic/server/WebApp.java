@@ -21,10 +21,13 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import com.example.afs.makingmusic.process.BackgroundDetector;
+import com.example.afs.makingmusic.common.Injector;
+import com.example.afs.makingmusic.common.PropertyChange;
+import com.example.afs.makingmusic.constants.Properties;
 import com.example.afs.makingmusic.process.CameraReader;
 import com.example.afs.makingmusic.process.ImageCatcher;
 import com.example.afs.makingmusic.process.ImageGenerator;
+import com.example.afs.makingmusic.process.MotionDetector;
 import com.example.afs.makingmusic.process.MusicGenerator;
 
 public class WebApp {
@@ -34,10 +37,10 @@ public class WebApp {
     CameraReader cameraReader = new CameraReader();
     cameraReader.start(125);
 
-    BackgroundDetector backgroundDetector = new BackgroundDetector(cameraReader.getOutputQueue());
-    backgroundDetector.start();
+    MotionDetector motionDetector = new MotionDetector(cameraReader.getOutputQueue());
+    motionDetector.start();
 
-    MusicGenerator musicGenerator = new MusicGenerator(backgroundDetector.getOutputQueue());
+    MusicGenerator musicGenerator = new MusicGenerator(motionDetector.getOutputQueue());
     musicGenerator.start();
 
     ImageGenerator imageGenerator = new ImageGenerator(musicGenerator.getOutputQueue());
@@ -45,6 +48,9 @@ public class WebApp {
 
     ImageCatcher imageCatcher = new ImageCatcher(imageGenerator.getOutputQueue());
     imageCatcher.start();
+
+    Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, "10"));
+    Injector.getMessageBroker().publish(new PropertyChange("instrument-acoustic-grand-piano", "true"));
 
     Server server = new Server();
     SocketConnector connector = new SocketConnector();
@@ -58,7 +64,7 @@ public class WebApp {
     ServletContextHandler context = new ServletContextHandler();
     context.addServlet(defaultServletHolder, "/");
     context.addServlet(CurrentFrameServlet.class, "/currentFrame.jpg");
-    context.addServlet(RestServlet.class, "/rest/*");
+    context.addServlet(RestServlet.class, "/rest/v1/*");
     HandlerCollection handlers = new HandlerCollection();
     handlers.setHandlers(new Handler[] {
         context,

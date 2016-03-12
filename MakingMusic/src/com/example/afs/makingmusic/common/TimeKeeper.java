@@ -45,13 +45,14 @@ public class TimeKeeper {
   }
 
   public static final String INPUT = "1 Input";
-  public static final String LOOP = "4 Loop";
-  public static final String OUTPUT = "3 Output";
-  public static final String PROCESS = "2 Process";
+  public static final String LOOP = "5 Loop";
+  public static final String OUTPUT = "4 Output";
+  public static final String PROCESS = "3 Process";
+  public static final String PROPERTY = "2 Property";
 
   public static final long REPORT_INTERVAL_MILLIS = 10000;
 
-  private boolean isEnabled = true;
+  private boolean isEnabled = false;
   private String name;
   private Map<String, TimeKeeper.Observer> observers = new HashMap<>();
   private long reportIntervalMillis;
@@ -98,6 +99,10 @@ public class TimeKeeper {
     begin(PROCESS);
   }
 
+  public void beginProperty() {
+    begin(PROPERTY);
+  }
+
   public void clear() {
     observers.clear();
   }
@@ -130,6 +135,10 @@ public class TimeKeeper {
 
   public void endProcess() {
     end(PROCESS);
+  }
+
+  public void endProperty() {
+    end(PROPERTY);
   }
 
   private TimeKeeper.Observer getObserver(String sampleName) {

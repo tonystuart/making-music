@@ -1,17 +1,245 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <title>Making Music</title>
-<script>
-function refreshImage() {
-	var img = document.getElementById("img");
-	img.src="currentFrame.jpg?t=" + new Date().getTime();
-	setTimeout(refreshImage, 1000);
+<style>
+body {
+	background-color: black;
+	color: #0e0;
+	font-family: sans-serif;
+	max-width: 600px;
 }
+
+button {
+	background-color: black;
+	border: 1px solid #0e0;
+	color: #0e0;
+}
+
+div {
+	display: flex;
+	flex-direction: column;
+	padding: 10px 0px;
+}
+
+h1 {
+	font-size: 2rem;
+	font-weight: bold;
+	text-align: center;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 1.5rem;
+	font-weight: normal;
+	text-align: center;
+}
+
+img {
+	width: 100%;
+}
+
+label {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1
+}
+
+input {
+	background-color: gray;
+	border: 1px solid #0e0;
+	color: #0e0;
+	padding: 5px;
+}
+
+input[type='number'] {
+	flex-grow: 1;
+}
+
+input[type='text'] {
+	flex-grow: 1;
+}
+
+.field button {
+	margin-left: 10px;
+}
+
+.row {
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+</style>
+<script>
+  "use strict";
+  // See https://javascriptweblog.wordpress.com/2010/12/07/namespacing-in-javascript/
+  var makingMusic = makingMusic || {};
+  (function() {
+    var refreshIntervalMillis = 1000;
+    this.initializeProperties = function(json) {
+      console.log("json=" + json);
+      var response = JSON.parse(json);
+      var properties = response.properties;
+      for ( var name in properties) {
+        var value = properties[name];
+        if (name === "maximum-concurrent-notes") {
+          document.getElementById(name).value = value;
+        } else if (name.match(/^instrument-/)) {
+          document.getElementById(name).checked = (value === "true");
+        }
+      }
+    }
+    this.onClick = function(event) {
+      var target = event.target;
+      var id = target.id;
+      var match = id.match(/^instrument-(.+)/);
+      if (match !== null) {
+        var value = target.checked;
+        this.setProperty(id, value);
+      }
+      match = id.match(/^buttons-(.+)/);
+      if (match !== null) {
+        var name = match[1];
+        var value = document.getElementById(name).value;
+        this.setProperty(name, value);
+      }
+    }
+    this.onLoad = function() {
+      this.refreshImage();
+      //this.onPoll();
+    }
+    this.onPoll = function() {
+      var self = this;
+      var httpRequest = new XMLHttpRequest();
+      document.getElementById("property-form").reset();
+      httpRequest.onreadystatechange = function() {
+        if (httpRequest.readyState == 4 && httpRequest.status == 200) {
+          self.initializeProperties(httpRequest.responseText);
+        }
+      };
+      httpRequest.open("GET", "rest/v1/properties", true);
+      httpRequest.send();
+    }
+    this.setProperty = function(name, value) {
+      var httpRequest = new XMLHttpRequest();
+      httpRequest.open("POST", "rest/v1/properties/" + name + "/" + value, true);
+      httpRequest.send();
+    }
+    this.refreshImage = function() {
+      console.log("refresh image");
+      var currentFrame = document.getElementById("current-frame");
+      currentFrame.src = "currentFrame.jpg?t=" + new Date().getTime();
+    }
+    setInterval(this.refreshImage, refreshIntervalMillis);
+  }).apply(makingMusic);
 </script>
 </head>
-<body onload="refreshImage()">
-<img id="img" src="currentFrame.jpg" alt="Current Frame"/>
+<body onload='makingMusic.onLoad()' onclick='makingMusic.onClick(event)'>
+    <h1>Welcome to Making Music While the Sun Shines</h1>
+    <div>
+        <img id='current-frame' src='currentFrame.jpg' alt='Current Frame' />
+    </div>
+    <form id='property-form'>
+        <div>
+            <h2>Instruments</h2>
+            <label>
+                <input type='checkbox' id='instrument-acoustic-grand-piano'>
+                Grand Piano
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-tubular-bells'>
+                Tubular Bells
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-church-organ'>
+                Church Organ
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-acoustic-guitar-nylon'>
+                Guitar
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-acoustic-bass'>
+                Bass
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-tremolo-strings'>
+                Tremelo Strings
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-choir-aahs'>
+                Choir Aahs
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-trumpet'>
+                Trumpet
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-soprano-sax'>
+                Soprano Sax
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-recorder'>
+                Recorder
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-lead-3-calliope'>
+                Calliope
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-pad-1-new-age'>
+                New Age
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-fx-8-sci-fi'>
+                Sci-Fi
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-sitar'>
+                Sitar
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-taiko-drum'>
+                Taiko Drum
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-bird-tweet'>
+                Bird Tweet
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-drum-kit-1'>
+                Drum Kit 1
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-drum-kit-2'>
+                Drum Kit 2
+            </label>
+            <label>
+                <input type='checkbox' id='instrument-drum-kit-3'>
+                Drum Kit 3
+            </label>
+        </div>
+        <h2>Settings</h2>
+        <div class='field'>
+            <div>
+                Refresh Frequency in Milliseconds:
+                <div class='row'>
+                    <input type='number' min='200' max='5000' step='200' value='1000' id='refresh-frequency'>
+                    <button id='buttons-refresh-frequency'>Okay</button>
+                </div>
+            </div>
+        </div>
+        <div class='field'>
+            <div>
+                Maximum Number of Concurrent Notes:
+                <div class='row'>
+                    <input type='number' min='1' max='100' step='1' value='10' id='maximum-concurrent-notes'>
+                    <button id='buttons-maximum-concurrent-notes'>Okay</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div></div>
 </body>
 </html>

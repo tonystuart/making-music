@@ -9,10 +9,13 @@
 
 package com.example.afs.makingmusic;
 
-import com.example.afs.makingmusic.process.BackgroundDetector;
+import com.example.afs.makingmusic.common.Injector;
+import com.example.afs.makingmusic.common.PropertyChange;
+import com.example.afs.makingmusic.constants.Properties;
 import com.example.afs.makingmusic.process.CameraReader;
 import com.example.afs.makingmusic.process.ImageGenerator;
 import com.example.afs.makingmusic.process.ImageViewer;
+import com.example.afs.makingmusic.process.MotionDetector;
 import com.example.afs.makingmusic.process.MusicGenerator;
 
 public class Player {
@@ -27,10 +30,10 @@ public class Player {
     CameraReader cameraReader = new CameraReader();
     cameraReader.start(125);
 
-    BackgroundDetector backgroundDetector = new BackgroundDetector(cameraReader.getOutputQueue());
-    backgroundDetector.start();
+    MotionDetector motionDetector = new MotionDetector(cameraReader.getOutputQueue());
+    motionDetector.start();
 
-    MusicGenerator musicGenerator = new MusicGenerator(backgroundDetector.getOutputQueue());
+    MusicGenerator musicGenerator = new MusicGenerator(motionDetector.getOutputQueue());
     musicGenerator.start();
 
     ImageGenerator imageGenerator = new ImageGenerator(musicGenerator.getOutputQueue());
@@ -38,6 +41,9 @@ public class Player {
 
     ImageViewer imageViewer = new ImageViewer(imageGenerator.getOutputQueue());
     imageViewer.start();
+
+    Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, "10"));
+    Injector.getMessageBroker().publish(new PropertyChange("instrument-acoustic-grand-piano", "true"));
   }
 
 }
