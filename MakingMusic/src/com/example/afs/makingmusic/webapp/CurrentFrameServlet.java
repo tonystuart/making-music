@@ -7,7 +7,7 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.makingmusic.server;
+package com.example.afs.makingmusic.webapp;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
