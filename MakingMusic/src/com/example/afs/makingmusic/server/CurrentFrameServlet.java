@@ -11,7 +11,6 @@ package com.example.afs.makingmusic.server;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;

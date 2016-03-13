@@ -9,7 +9,7 @@
 
 package com.example.afs.makingmusic.server;
 
-import java.io.File;
+import java.net.URL;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -32,8 +32,19 @@ import com.example.afs.makingmusic.process.MusicGenerator;
 
 public class WebApp {
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
+    new WebApp().start();
+  }
 
+  private Server server;
+
+  public WebApp() {
+    createProcess();
+    initializeProperties();
+    createServer();
+  }
+
+  private void createProcess() {
     CameraReader cameraReader = new CameraReader();
     cameraReader.start(125);
 
@@ -48,11 +59,10 @@ public class WebApp {
 
     ImageCatcher imageCatcher = new ImageCatcher(imageGenerator.getOutputQueue());
     imageCatcher.start();
+  }
 
-    Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, "10"));
-    Injector.getMessageBroker().publish(new PropertyChange("instrument-acoustic-grand-piano", "true"));
-
-    Server server = new Server();
+  private void createServer() {
+    server = new Server();
     SocketConnector connector = new SocketConnector();
     connector.setPort(8080);
     server.setConnectors(new Connector[] {
@@ -60,7 +70,7 @@ public class WebApp {
     });
     DefaultServlet defaultServlet = new DefaultServlet();
     ServletHolder defaultServletHolder = new ServletHolder(defaultServlet);
-    defaultServletHolder.setInitParameter("resourceBase", new File("html").getCanonicalPath());
+    defaultServletHolder.setInitParameter("resourceBase", getResourceBase());
     System.out.println("resourceBase=" + defaultServletHolder.getInitParameter("resourceBase"));
     ServletContextHandler context = new ServletContextHandler();
     context.addServlet(defaultServletHolder, "/");
@@ -72,7 +82,27 @@ public class WebApp {
         new DefaultHandler()
     });
     server.setHandler(handlers);
-    server.start();
-    server.join();
+  }
+
+  private String getResourceBase() {
+    String packageName = getClass().getPackage().getName();
+    String packageFolder = packageName.replace(".", "/");
+    URL resource = getClass().getClassLoader().getResource(packageFolder);
+    String resourceBase = resource.toExternalForm();
+    return resourceBase;
+  }
+
+  private void initializeProperties() {
+    Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, "10"));
+    Injector.getMessageBroker().publish(new PropertyChange("instrument-acoustic-grand-piano", "true"));
+  }
+
+  private void start() {
+    try {
+      server.start();
+      server.join();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }
