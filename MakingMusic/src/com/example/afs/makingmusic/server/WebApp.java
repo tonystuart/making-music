@@ -61,6 +61,7 @@ public class WebApp {
     DefaultServlet defaultServlet = new DefaultServlet();
     ServletHolder defaultServletHolder = new ServletHolder(defaultServlet);
     defaultServletHolder.setInitParameter("resourceBase", new File("html").getCanonicalPath());
+    System.out.println("resourceBase=" + defaultServletHolder.getInitParameter("resourceBase"));
     ServletContextHandler context = new ServletContextHandler();
     context.addServlet(defaultServletHolder, "/");
     context.addServlet(CurrentFrameServlet.class, "/currentFrame.jpg");

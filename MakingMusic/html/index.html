@@ -106,20 +106,12 @@ input[type='text'] {
       }
     }
     this.onLoad = function() {
-      this.refreshImage();
-      //this.onPoll();
+      document.getElementById("property-form").reset();
+      this.onPoll();
     }
     this.onPoll = function() {
-      var self = this;
-      var httpRequest = new XMLHttpRequest();
-      document.getElementById("property-form").reset();
-      httpRequest.onreadystatechange = function() {
-        if (httpRequest.readyState == 4 && httpRequest.status == 200) {
-          self.initializeProperties(httpRequest.responseText);
-        }
-      };
-      httpRequest.open("GET", "rest/v1/properties", true);
-      httpRequest.send();
+      this.refreshImage();
+      this.refreshProperties();
     }
     this.setProperty = function(name, value) {
       var httpRequest = new XMLHttpRequest();
@@ -131,7 +123,18 @@ input[type='text'] {
       var currentFrame = document.getElementById("current-frame");
       currentFrame.src = "currentFrame.jpg?t=" + new Date().getTime();
     }
-    setInterval(this.refreshImage, refreshIntervalMillis);
+    this.refreshProperties = function() {
+      var self = this;
+      var httpRequest = new XMLHttpRequest();
+      httpRequest.onreadystatechange = function() {
+        if (httpRequest.readyState == 4 && httpRequest.status == 200) {
+          self.initializeProperties(httpRequest.responseText);
+        }
+      };
+      httpRequest.open("GET", "rest/v1/properties", true);
+      httpRequest.send();
+    }
+    setInterval(this.onPoll.bind(this), refreshIntervalMillis);
   }).apply(makingMusic);
 </script>
 </head>

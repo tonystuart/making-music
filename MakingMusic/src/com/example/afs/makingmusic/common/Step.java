@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.example.afs.makingmusic.common.MessageBroker.Subscriber;
-import com.example.afs.makingmusic.constants.Properties;
 
 public class Step<T> extends Thread {
 

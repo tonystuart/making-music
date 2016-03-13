@@ -28,7 +28,6 @@ public class CurrentFrameServlet extends HttpServlet {
   private static TimeKeeper timeKeeper = new TimeKeeper(CurrentFrameServlet.class.getSimpleName());
 
   public synchronized static void getImage(HttpServletResponse resp) throws ServletException, IOException {
-    System.out.println("CurrentFrameServlet.getImage: entered at " + new Date());
     timeKeeper.beginLoop();
     BufferedImage bufferedImage = ImageCatcher.getImage();
     if (bufferedImage != null) {
