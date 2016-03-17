@@ -85,7 +85,7 @@ public class WebApp {
   }
 
   private String getResourceBase() {
-    String packageName = getClass().getPackage().getName();
+    String packageName = getClass().getPackage().getName() + ".client";
     String packageFolder = packageName.replace(".", "/");
     URL resource = getClass().getClassLoader().getResource(packageFolder);
     String resourceBase = resource.toExternalForm();
