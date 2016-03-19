@@ -78,13 +78,16 @@ input[type='text'] {
   (function() {
     var refreshIntervalMillis = 1000;
     this.initializeProperties = function(json) {
-      console.log("json=" + json);
       var response = JSON.parse(json);
       var properties = response.properties;
       for ( var name in properties) {
         var value = properties[name];
         if (name === "maximum-concurrent-notes") {
-          document.getElementById(name).value = value;
+          var input = document.getElementById(name);
+          if (input.value == input.defaultValue) {
+            input.value = value;
+            input.defaultValue = value;
+          }
         } else if (name.match(/^instrument-/)) {
           document.getElementById(name).checked = (value === "true");
         }
@@ -101,8 +104,10 @@ input[type='text'] {
       match = id.match(/^buttons-(.+)/);
       if (match !== null) {
         var name = match[1];
-        var value = document.getElementById(name).value;
+        var input = document.getElementById(name);
+        var value = input.value;
         this.setProperty(name, value);
+        input.defaultValue = value;
       }
     }
     this.onLoad = function() {
@@ -119,7 +124,6 @@ input[type='text'] {
       httpRequest.send();
     }
     this.refreshImage = function() {
-      console.log("refresh image");
       var currentFrame = document.getElementById("current-frame");
       currentFrame.src = "currentFrame.jpg?t=" + new Date().getTime();
     }
@@ -229,7 +233,7 @@ input[type='text'] {
                 Refresh Frequency in Milliseconds:
                 <div class='row'>
                     <input type='number' min='200' max='5000' step='200' value='1000' id='refresh-frequency'>
-                    <button id='buttons-refresh-frequency'>Okay</button>
+                    <button type='button' id='buttons-refresh-frequency'>Okay</button>
                 </div>
             </div>
         </div>
@@ -238,7 +242,7 @@ input[type='text'] {
                 Maximum Number of Concurrent Notes:
                 <div class='row'>
                     <input type='number' min='1' max='100' step='1' value='10' id='maximum-concurrent-notes'>
-                    <button id='buttons-maximum-concurrent-notes'>Okay</button>
+                    <button type='button' id='buttons-maximum-concurrent-notes'>Okay</button>
                 </div>
             </div>
         </div>
