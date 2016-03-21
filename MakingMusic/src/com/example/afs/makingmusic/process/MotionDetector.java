@@ -10,6 +10,7 @@
 package com.example.afs.makingmusic.process;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -43,6 +44,7 @@ public class MotionDetector extends Step<Frame> {
     backgroundSubtractor.apply(image, foregroundMask);
     List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
     Imgproc.findContours(foregroundMask.clone(), contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+    Collections.shuffle(contours);
     int contourCount = contours.size();
     for (int contourIndex = 0; contourIndex < contourCount; contourIndex++) {
       MatOfPoint contour = contours.get(contourIndex);
