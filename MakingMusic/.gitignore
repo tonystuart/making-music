@@ -1,4 +1,5 @@
 /bin/
+/mm/bin/
 *.o
 *.so
 *.jar
