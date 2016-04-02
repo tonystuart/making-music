@@ -10,3 +10,4 @@ sudo cp -v /home/pi/mm/config/etc/hostapd/hostapd.conf.1 /etc/hostapd/hostapd.co
 sudo update-rc.d hostapd enable
 sudo update-rc.d dnsmasq enable
 
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
