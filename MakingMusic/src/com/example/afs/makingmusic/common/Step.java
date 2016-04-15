@@ -9,8 +9,6 @@
 
 package com.example.afs.makingmusic.common;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -81,16 +79,6 @@ public class Step<T> extends Thread {
     }
   }
 
-  public void start(int period) {
-    Timer timer = new Timer();
-    timer.scheduleAtFixedRate(new TimerTask() {
-      @Override
-      public void run() {
-        runBody();
-      }
-    }, 0, period);
-  }
-
   public void terminate() {
     terminated = true;
   }
@@ -112,7 +100,7 @@ public class Step<T> extends Thread {
   protected void onPropertyChange(PropertyChange propertyChange) {
   }
 
-  private void runBody() {
+  protected void runBody() {
     try {
       T message;
       timeKeeper.beginLoop();

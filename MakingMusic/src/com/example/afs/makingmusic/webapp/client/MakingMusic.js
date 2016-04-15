@@ -46,8 +46,8 @@ var makingMusic = makingMusic || {};
   this.onLoad = function() {
     this.selectTab("home");
     document.getElementById("property-form").reset();
-    // this.setInterval(this.onPoll.bind(this), refreshIntervalMillis);
-    this.onPoll();
+    setInterval(this.onPoll.bind(this), refreshIntervalMillis);
+    //this.onPoll();
   }
   this.onPoll = function() {
     this.refreshImage();
@@ -60,7 +60,7 @@ var makingMusic = makingMusic || {};
       tab = tabs[i];
       console.log(tab);
       if (tab.id == name) {
-        tab.style['display'] = 'block';
+        tab.style['display'] = 'flex';
       } else {
         tab.style['display'] = 'none';
       }

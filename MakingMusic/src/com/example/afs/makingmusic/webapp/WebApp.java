@@ -70,8 +70,8 @@ public class WebApp {
   }
 
   private void createProcess() {
-    CameraReader cameraReader = new CameraReader();
-    cameraReader.start(125);
+    CameraReader cameraReader = new CameraReader(125);
+    cameraReader.start();
 
     MotionDetector motionDetector = new MotionDetector(cameraReader.getOutputQueue());
     motionDetector.start();

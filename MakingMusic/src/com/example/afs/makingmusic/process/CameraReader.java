@@ -13,9 +13,9 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
-import com.example.afs.makingmusic.common.Step;
+import com.example.afs.makingmusic.common.ScheduledStep;
 
-public class CameraReader extends Step<Frame> {
+public class CameraReader extends ScheduledStep<Frame> {
 
   static {
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -23,7 +23,8 @@ public class CameraReader extends Step<Frame> {
 
   private VideoCapture camera;
 
-  public CameraReader() {
+  public CameraReader(long intervalMillis) {
+    super(intervalMillis);
     this.camera = new VideoCapture(0);
   }
 
