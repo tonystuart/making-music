@@ -1,0 +1,66 @@
+@CHARSET "UTF-8";
+body {
+  background-color: black;
+  color: #0e0;
+  font-family: sans-serif;
+  max-width: 600px;
+}
+
+button {
+  background-color: black;
+  border: 1px solid #0e0;
+  color: #0e0;
+}
+
+div {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0px;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: normal;
+  text-align: center;
+}
+
+img {
+  width: 100%;
+}
+
+label {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1
+}
+
+input {
+  background-color: gray;
+  border: 1px solid #0e0;
+  color: #0e0;
+  padding: 5px;
+}
+
+input[type='number'] {
+  flex-grow: 1;
+}
+
+input[type='text'] {
+  flex-grow: 1;
+}
+
+.field button {
+  margin-left: 10px;
+}
+
+.row {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
