@@ -6,114 +6,127 @@
 <title>Making Music</title>
 <link rel='stylesheet' type='text/css' href='MakingMusic.css'>
 <script src='MakingMusic.js'></script>
-<script>
-</script>
 </head>
 <body onload='makingMusic.onLoad()' onclick='makingMusic.onClick(event)'>
-    <h1>Welcome to Making Music While the Sun Shines</h1>
-    <div>
-        <img id='current-frame' src='currentFrame.jpg' alt='Current Frame' />
+    <h1>
+        Making Music
+        <br>
+        While the Sun Shines
+    </h1>
+    <div class='row'>
+        <button type='button' id='tab-home'>Home</button>
+        <button type='button' id='tab-info'>Info</button>
+        <button type='button' id='tab-instruments'>Instruments</button>
+        <button type='button' id='tab-statistics'>Statistics</button>
+        <button type='button' id='tab-settings'>Settings</button>
     </div>
-    <form id='property-form'>
+    <div id='home' class='tab'>
         <div>
-            <h2>Instruments</h2>
-            <label>
-                <input type='checkbox' id='instrument-acoustic-grand-piano'>
-                Grand Piano
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-tubular-bells'>
-                Tubular Bells
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-church-organ'>
-                Church Organ
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-acoustic-guitar-nylon'>
-                Guitar
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-acoustic-bass'>
-                Bass
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-tremolo-strings'>
-                Tremelo Strings
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-choir-aahs'>
-                Choir Aahs
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-trumpet'>
-                Trumpet
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-soprano-sax'>
-                Soprano Sax
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-recorder'>
-                Recorder
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-lead-3-calliope'>
-                Calliope
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-pad-1-new-age'>
-                New Age
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-fx-8-sci-fi'>
-                Sci-Fi
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-sitar'>
-                Sitar
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-taiko-drum'>
-                Taiko Drum
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-bird-tweet'>
-                Bird Tweet
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-drum-kit-1'>
-                Drum Kit 1
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-drum-kit-2'>
-                Drum Kit 2
-            </label>
-            <label>
-                <input type='checkbox' id='instrument-drum-kit-3'>
-                Drum Kit 3
-            </label>
+            <img id='current-frame' src='currentFrame.jpg' alt='Current Frame' />
         </div>
-        <h2>Settings</h2>
-        <div class='field'>
-            <div>
-                Refresh Frequency in Milliseconds:
-                <div class='row'>
-                    <input type='number' min='200' max='5000' step='200' value='1000' id='refresh-frequency'>
-                    <button type='button' id='buttons-refresh-frequency'>Okay</button>
-                </div>
+    </div>
+    <div id='instruments' class='tab'>
+        <h2>Instruments</h2>
+        <form id='property-form'>
+            <div class='multi-column'>
+                <label>
+                    <input type='checkbox' id='instrument-acoustic-grand-piano'>
+                    Grand Piano
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-tubular-bells'>
+                    Tubular Bells
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-church-organ'>
+                    Church Organ
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-acoustic-guitar-nylon'>
+                    Guitar
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-acoustic-bass'>
+                    Bass
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-tremolo-strings'>
+                    Tremelo Strings
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-choir-aahs'>
+                    Choir Aahs
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-trumpet'>
+                    Trumpet
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-soprano-sax'>
+                    Soprano Sax
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-recorder'>
+                    Recorder
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-lead-3-calliope'>
+                    Calliope
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-pad-1-new-age'>
+                    New Age
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-fx-8-sci-fi'>
+                    Sci-Fi
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-sitar'>
+                    Sitar
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-taiko-drum'>
+                    Taiko Drum
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-bird-tweet'>
+                    Bird Tweet
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-drum-kit-1'>
+                    Drum Kit 1
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-drum-kit-2'>
+                    Drum Kit 2
+                </label>
+                <label>
+                    <input type='checkbox' id='instrument-drum-kit-3'>
+                    Drum Kit 3
+                </label>
             </div>
-        </div>
+        </form>
+    </div>
+    <div id='info' class='tab'>
+        <h2>Info</h2>
+        <div>Info goes here...</div>
+    </div>
+    <div id='statistics' class='tab'>
+        <h2>Statistics</h2>
+        <div>Statistics go here...</div>
+    </div>
+    <div id='settings' class='tab'>
+        <h2>Settings</h2>
         <div class='field'>
             <div>
                 Maximum Number of Concurrent Notes:
                 <div class='row'>
                     <input type='number' min='1' max='100' step='1' value='10' id='maximum-concurrent-notes'>
-                    <button type='button' id='buttons-maximum-concurrent-notes'>Okay</button>
+                    <button type='button' id='property-maximum-concurrent-notes'>Okay</button>
                 </div>
             </div>
         </div>
-    </form>
-    <div></div>
+    </div>
 </body>
 </html>

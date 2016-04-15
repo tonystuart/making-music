@@ -60,7 +60,15 @@ input[type='text'] {
   margin-left: 10px;
 }
 
+.multi-column {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	height: 200px;
+}
+
 .row {
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: space-between;
 }

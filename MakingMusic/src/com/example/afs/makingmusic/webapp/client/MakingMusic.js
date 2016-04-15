@@ -28,7 +28,7 @@ var makingMusic = makingMusic || {};
       var value = target.checked;
       this.setProperty(id, value);
     }
-    match = id.match(/^buttons-(.+)/);
+    match = id.match(/^property-(.+)/);
     if (match !== null) {
       var name = match[1];
       var input = document.getElementById(name);
@@ -36,14 +36,35 @@ var makingMusic = makingMusic || {};
       this.setProperty(name, value);
       input.defaultValue = value;
     }
+    match = id.match(/^tab-(.+)/);
+    if (match !== null) {
+      var name = match[1];
+      this.selectTab(name);
+    }
+
   }
   this.onLoad = function() {
+    this.selectTab("home");
     document.getElementById("property-form").reset();
+    // this.setInterval(this.onPoll.bind(this), refreshIntervalMillis);
     this.onPoll();
   }
   this.onPoll = function() {
     this.refreshImage();
     this.refreshProperties();
+  }
+  this.selectTab = function(name) {
+    var i = null, tab = null;
+    var tabs = document.querySelectorAll(".tab");
+    for (i = 0; i < tabs.length; i++) {
+      tab = tabs[i];
+      console.log(tab);
+      if (tab.id == name) {
+        tab.style['display'] = 'block';
+      } else {
+        tab.style['display'] = 'none';
+      }
+    }
   }
   this.setProperty = function(name, value) {
     var httpRequest = new XMLHttpRequest();
@@ -65,5 +86,4 @@ var makingMusic = makingMusic || {};
     httpRequest.open("GET", "rest/v1/properties", true);
     httpRequest.send();
   }
-  setInterval(this.onPoll.bind(this), refreshIntervalMillis);
 }).apply(makingMusic);
