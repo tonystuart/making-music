@@ -23,7 +23,6 @@ public class ResetMessagePublisher extends ScheduledStep<Void> {
 
   @Override
   public Void process() throws InterruptedException {
-    System.out.println("ResetMessagePublisher.process: publishing RESET message");
     Injector.getMessageBroker().publish(new PropertyChange(Properties.RESET, null));
     return null;
   }
@@ -31,7 +30,6 @@ public class ResetMessagePublisher extends ScheduledStep<Void> {
   @Override
   protected void onPropertyChange(PropertyChange propertyChange) {
     if (!propertyChange.getName().equals(Properties.RESET)) {
-      System.out.println("ResetMessagePublisher.onPropertyChange: resetting timer");
       resetTimer();
     }
   }
