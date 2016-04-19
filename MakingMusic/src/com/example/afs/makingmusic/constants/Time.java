@@ -9,10 +9,11 @@
 
 package com.example.afs.makingmusic.constants;
 
-public class Properties {
+import java.util.concurrent.TimeUnit;
 
-  public static final String INSTRUMENT_PREFIX = "instrument-";
-  public static final String MAXIMUM_CONCURRENT_NOTES = "maximum-concurrent-notes";
-  public static final String RESET = "reset";
+public class Time {
+
+  public static final long FRAME_RATE_MILLIS = TimeUnit.SECONDS.toMillis(1) / 8;
+  public static final long RESET_INTERVAL_MILLIS = TimeUnit.MINUTES.toMillis(5);
 
 }

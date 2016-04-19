@@ -159,10 +159,14 @@ public class Instruments {
 
   public boolean contains(String name) {
     return map.containsKey(name);
-  };
+  }
 
   public Instrument find(String name) {
     return map.get(name);
+  };
+
+  public String getDefaultInstrumentName() {
+    return map.keySet().iterator().next();
   }
 
   public Instrument[] getInstruments(Set<String> names) {

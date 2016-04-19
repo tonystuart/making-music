@@ -21,11 +21,15 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ScheduledStep<T> extends Step<T> {
 
-  private AtomicLong previousMillis = new AtomicLong();
   private long intervalMillis;
+  private AtomicLong previousMillis = new AtomicLong();
 
   public ScheduledStep(long intervalMillis) {
     this.intervalMillis = intervalMillis;
+  }
+
+  public void resetTimer() {
+    previousMillis.set(System.currentTimeMillis());
   }
 
   @Override
@@ -33,7 +37,7 @@ public class ScheduledStep<T> extends Step<T> {
     long sleepMillis;
     while ((sleepMillis = (previousMillis.get() + intervalMillis) - System.currentTimeMillis()) > 0) {
       try {
-        // System.out.println("Sleeping for " + sleepMillis + " milliseconds.");
+        System.out.println("Sleeping for " + sleepMillis + " milliseconds.");
         Thread.sleep(sleepMillis);
       } catch (InterruptedException e) {
         // Recalculate and restart sleep
@@ -41,10 +45,6 @@ public class ScheduledStep<T> extends Step<T> {
     }
     resetTimer();
     super.runBody();
-  }
-
-  public void resetTimer() {
-    previousMillis.set(System.currentTimeMillis());
   }
 
 }

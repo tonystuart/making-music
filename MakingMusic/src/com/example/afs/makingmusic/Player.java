@@ -9,14 +9,13 @@
 
 package com.example.afs.makingmusic;
 
-import com.example.afs.makingmusic.common.Injector;
-import com.example.afs.makingmusic.common.PropertyChange;
-import com.example.afs.makingmusic.constants.Properties;
+import com.example.afs.makingmusic.constants.Time;
 import com.example.afs.makingmusic.process.CameraReader;
 import com.example.afs.makingmusic.process.ImageGenerator;
 import com.example.afs.makingmusic.process.ImageViewer;
 import com.example.afs.makingmusic.process.MotionDetector;
 import com.example.afs.makingmusic.process.MusicGenerator;
+import com.example.afs.makingmusic.process.ResetMessagePublisher;
 
 public class Player {
 
@@ -27,7 +26,7 @@ public class Player {
 
   public void play() {
 
-    CameraReader cameraReader = new CameraReader(125);
+    CameraReader cameraReader = new CameraReader(Time.FRAME_RATE_MILLIS);
     cameraReader.start();
 
     MotionDetector motionDetector = new MotionDetector(cameraReader.getOutputQueue());
@@ -42,8 +41,8 @@ public class Player {
     ImageViewer imageViewer = new ImageViewer(imageGenerator.getOutputQueue());
     imageViewer.start();
 
-    Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, "10"));
-    Injector.getMessageBroker().publish(new PropertyChange("instrument-acoustic-grand-piano", "true"));
+    ResetMessagePublisher resetMessagePublisher = new ResetMessagePublisher(Time.RESET_INTERVAL_MILLIS);
+    resetMessagePublisher.start();
   }
 
 }

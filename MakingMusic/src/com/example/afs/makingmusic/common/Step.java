@@ -86,14 +86,6 @@ public class Step<T> extends Thread {
   protected void cleanup() {
   }
 
-  protected void doPropertyChange(PropertyChange propertyChange) {
-    try {
-      onPropertyChange(propertyChange);
-    } catch (RuntimeException e) {
-      // ignore invalid property change
-    }
-  }
-
   protected void initialize() {
   }
 
@@ -115,7 +107,7 @@ public class Step<T> extends Thread {
         timeKeeper.beginProperty();
         if (propertyChangeQueue.get() != null) {
           while (propertyChangeQueue.get().size() > 0) {
-            onPropertyChange(propertyChangeQueue.get().remove());
+            doPropertyChange(propertyChangeQueue.get().remove());
           }
         }
         timeKeeper.endProperty();
@@ -131,6 +123,14 @@ public class Step<T> extends Thread {
       timeKeeper.endLoop();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void doPropertyChange(PropertyChange propertyChange) {
+    try {
+      onPropertyChange(propertyChange);
+    } catch (RuntimeException e) {
+      // ignore invalid property change
     }
   }
 

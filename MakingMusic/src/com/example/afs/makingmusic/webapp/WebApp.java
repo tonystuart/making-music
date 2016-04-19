@@ -29,14 +29,13 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
-import com.example.afs.makingmusic.common.Injector;
-import com.example.afs.makingmusic.common.PropertyChange;
-import com.example.afs.makingmusic.constants.Properties;
+import com.example.afs.makingmusic.constants.Time;
 import com.example.afs.makingmusic.process.CameraReader;
 import com.example.afs.makingmusic.process.ImageCatcher;
 import com.example.afs.makingmusic.process.ImageGenerator;
 import com.example.afs.makingmusic.process.MotionDetector;
 import com.example.afs.makingmusic.process.MusicGenerator;
+import com.example.afs.makingmusic.process.ResetMessagePublisher;
 
 public class WebApp {
 
@@ -65,12 +64,11 @@ public class WebApp {
 
   public WebApp() {
     createProcess();
-    initializeProperties();
     createServer();
   }
 
   private void createProcess() {
-    CameraReader cameraReader = new CameraReader(125);
+    CameraReader cameraReader = new CameraReader(Time.FRAME_RATE_MILLIS);
     cameraReader.start();
 
     MotionDetector motionDetector = new MotionDetector(cameraReader.getOutputQueue());
@@ -84,6 +82,9 @@ public class WebApp {
 
     ImageCatcher imageCatcher = new ImageCatcher(imageGenerator.getOutputQueue());
     imageCatcher.start();
+
+    ResetMessagePublisher resetMessagePublisher = new ResetMessagePublisher(Time.RESET_INTERVAL_MILLIS);
+    resetMessagePublisher.start();
   }
 
   private void createServer() {
@@ -115,11 +116,6 @@ public class WebApp {
     URL resource = getClass().getClassLoader().getResource(packageFolder);
     String resourceBase = resource.toExternalForm();
     return resourceBase;
-  }
-
-  private void initializeProperties() {
-    Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, "10"));
-    Injector.getMessageBroker().publish(new PropertyChange("instrument-acoustic-grand-piano", "true"));
   }
 
   private void start() {

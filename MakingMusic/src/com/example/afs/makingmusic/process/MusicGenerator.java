@@ -121,17 +121,31 @@ public class MusicGenerator extends Step<Frame> {
 
   @Override
   protected void onPropertyChange(PropertyChange propertyChange) {
-    if (propertyChange.getName().startsWith(Properties.INSTRUMENT_PREFIX)) {
-      updateActiveInstruments(propertyChange);
-    } else if (propertyChange.getName().equals(Properties.MAXIMUM_CONCURRENT_NOTES)) {
+    switch (propertyChange.getName()) {
+    case Properties.MAXIMUM_CONCURRENT_NOTES:
       maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
+      break;
+    case Properties.RESET:
+      maximumConcurrentNotes = Constants.LOWER_MAX_NOTES_LIMIT;
+      instrumentNames.clear();
+      updateActiveInstruments(Injector.getInstruments().getDefaultInstrumentName(), true);
+      break;
+    default:
+      if (propertyChange.getName().startsWith(Properties.INSTRUMENT_PREFIX)) {
+        updateActiveInstruments(propertyChange);
+      }
+      break;
     }
   }
 
   private void updateActiveInstruments(PropertyChange propertyChange) {
     String name = propertyChange.getName().substring(Properties.INSTRUMENT_PREFIX.length());
+    boolean isActive = Boolean.parseBoolean(propertyChange.getValue());
+    updateActiveInstruments(name, isActive);
+  }
+
+  private void updateActiveInstruments(String name, boolean isActive) {
     if (Injector.getInstruments().contains(name)) {
-      boolean isActive = Boolean.parseBoolean(propertyChange.getValue());
       if (isActive) {
         instrumentNames.add(name);
       } else {
