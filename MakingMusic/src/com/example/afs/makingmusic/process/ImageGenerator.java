@@ -32,6 +32,7 @@ public class ImageGenerator extends Step<Frame> {
 
   public ImageGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
+    resetProperties();
     setMonitorPropertyChanges(true);
   }
 
@@ -54,9 +55,13 @@ public class ImageGenerator extends Step<Frame> {
       maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
       break;
     case Properties.RESET:
-      maximumConcurrentNotes = Constants.LOWER_MAX_NOTES_LIMIT;
+      resetProperties();
       break;
     }
+  }
+
+  private void resetProperties() {
+    maximumConcurrentNotes = Constants.LOWER_MAX_NOTES_LIMIT;
   }
 
   private BufferedImage toBufferedImage(Mat matrix) {

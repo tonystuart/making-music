@@ -18,6 +18,7 @@ public class ResetMessagePublisher extends ScheduledStep<Void> {
 
   public ResetMessagePublisher(long intervalMillis) {
     super(intervalMillis);
+    resetTimer(); // skip initial iteration
     setMonitorPropertyChanges(true);
   }
 

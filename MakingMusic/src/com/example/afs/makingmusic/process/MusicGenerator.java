@@ -80,11 +80,12 @@ public class MusicGenerator extends Step<Frame> {
 
   public MusicGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
-    setMonitorPropertyChanges(true);
     activeSounds = new HashSet<>();
     instrumentNames = new HashSet<>();
     synthesizer = new Synthesizer();
     channelAssignments = new ChannelAssignments(synthesizer);
+    resetProperties();
+    setMonitorPropertyChanges(true);
   }
 
   @Override
@@ -126,9 +127,7 @@ public class MusicGenerator extends Step<Frame> {
       maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
       break;
     case Properties.RESET:
-      maximumConcurrentNotes = Constants.LOWER_MAX_NOTES_LIMIT;
-      instrumentNames.clear();
-      updateActiveInstruments(Injector.getInstruments().getDefaultInstrumentName(), true);
+      resetProperties();
       break;
     default:
       if (propertyChange.getName().startsWith(Properties.INSTRUMENT_PREFIX)) {
@@ -136,6 +135,12 @@ public class MusicGenerator extends Step<Frame> {
       }
       break;
     }
+  }
+
+  private void resetProperties() {
+    maximumConcurrentNotes = Constants.LOWER_MAX_NOTES_LIMIT;
+    instrumentNames.clear();
+    updateActiveInstruments(Injector.getInstruments().getDefaultInstrumentName(), true);
   }
 
   private void updateActiveInstruments(PropertyChange propertyChange) {
