@@ -48,7 +48,7 @@ public class ImageGenerator extends Step<Frame> {
   }
 
   @Override
-  protected void onPropertyChange(PropertyChange propertyChange) {
+  protected void doPropertyChange(PropertyChange propertyChange) {
     switch (propertyChange.getName()) {
     case Properties.MAXIMUM_CONCURRENT_NOTES:
       maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());

@@ -64,7 +64,7 @@ public class Step<T> extends Thread {
         propertyChangeSubscriber = new Subscriber<PropertyChange>() {
           @Override
           public void onMessage(PropertyChange message) {
-            propertyChangeQueue.get().add(message);
+            onPropertyChange(message);
           }
         };
         propertyChangeQueue.set(new ConcurrentLinkedQueue<PropertyChange>());
@@ -86,10 +86,20 @@ public class Step<T> extends Thread {
   protected void cleanup() {
   }
 
+  protected void doPropertyChange(PropertyChange propertyChange) {
+  }
+
   protected void initialize() {
   }
 
-  protected void onPropertyChange(PropertyChange propertyChange) {
+  /**
+   * Handle a property change message in a thread safe manner.
+   * 
+   * @param message
+   *          property change to handle
+   */
+  protected void onPropertyChange(PropertyChange message) {
+    propertyChangeQueue.get().add(message);
   }
 
   protected void runBody() {
@@ -97,28 +107,15 @@ public class Step<T> extends Thread {
       T message;
       timeKeeper.beginLoop();
       if (inputQueue == null) {
-        timeKeeper.beginProcess();
-        message = process();
-        timeKeeper.endProcess();
+        runPropertyChanges();
+        message = runProcess();
       } else {
-        timeKeeper.beginInput();
-        message = inputQueue.take();
-        timeKeeper.endInput();
-        timeKeeper.beginProperty();
-        if (propertyChangeQueue.get() != null) {
-          while (propertyChangeQueue.get().size() > 0) {
-            doPropertyChange(propertyChangeQueue.get().remove());
-          }
-        }
-        timeKeeper.endProperty();
-        timeKeeper.beginProcess();
-        process(message);
-        timeKeeper.endProcess();
+        message = runInput();
+        runPropertyChanges();
+        runProcess(message);
       }
       if (outputQueue != null) {
-        timeKeeper.beginOutput();
-        outputQueue.put(message);
-        timeKeeper.endOutput();
+        runOutput(message);
       }
       timeKeeper.endLoop();
     } catch (InterruptedException e) {
@@ -126,12 +123,46 @@ public class Step<T> extends Thread {
     }
   }
 
-  private void doPropertyChange(PropertyChange propertyChange) {
-    try {
-      onPropertyChange(propertyChange);
-    } catch (RuntimeException e) {
-      // ignore invalid property change
+  protected T runInput() throws InterruptedException {
+    T message;
+    timeKeeper.beginInput();
+    message = inputQueue.take();
+    timeKeeper.endInput();
+    return message;
+  }
+
+  protected void runOutput(T message) throws InterruptedException {
+    timeKeeper.beginOutput();
+    outputQueue.put(message);
+    timeKeeper.endOutput();
+  }
+
+  protected T runProcess() throws InterruptedException {
+    T message;
+    timeKeeper.beginProcess();
+    message = process();
+    timeKeeper.endProcess();
+    return message;
+  }
+
+  protected void runProcess(T message) throws InterruptedException {
+    timeKeeper.beginProcess();
+    process(message);
+    timeKeeper.endProcess();
+  }
+
+  protected void runPropertyChanges() {
+    timeKeeper.beginProperty();
+    if (propertyChangeQueue.get() != null) {
+      while (propertyChangeQueue.get().size() > 0) {
+        try {
+          doPropertyChange(propertyChangeQueue.get().remove());
+        } catch (RuntimeException e) {
+          // ignore invalid property change
+        }
+      }
     }
+    timeKeeper.endProperty();
   }
 
 }

@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * A step with a minimum interval between the start of each iteration. If a
  * previous iteration is not able to complete within this interval, the next
  * iteration is started immediately, and any missed iterations are ignored.
- * Contrast this with the fixed rate behavior of {@link Timer} which can get
- * further and further behind and run as an infinite loop until caught up.
+ * Contrast this maximum rate behavior with the "fixed rate" behavior of
+ * {@link Timer} which runs at a very high rate until caught up.
  */
 public class ScheduledStep<T> extends Step<T> {
 
@@ -28,6 +28,10 @@ public class ScheduledStep<T> extends Step<T> {
     this.intervalMillis = intervalMillis;
   }
 
+  /**
+   * Reset the step scheduler in a thread safe manner so that the step will not
+   * be invoked until intervalMillis have elapsed.
+   */
   public void resetTimer() {
     previousMillis.set(System.currentTimeMillis());
   }
@@ -37,7 +41,6 @@ public class ScheduledStep<T> extends Step<T> {
     long sleepMillis;
     while ((sleepMillis = (previousMillis.get() + intervalMillis) - System.currentTimeMillis()) > 0) {
       try {
-        System.out.println("Sleeping for " + sleepMillis + " milliseconds.");
         Thread.sleep(sleepMillis);
       } catch (InterruptedException e) {
         // Recalculate and restart sleep
