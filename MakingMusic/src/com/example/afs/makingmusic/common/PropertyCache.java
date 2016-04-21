@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 public class PropertyCache {
   private Map<String, String> properties = new LinkedHashMap<String, String>() {
     protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
-      return size() == Constants.MAX_PROPERTIES;
+      return size() == Constants.PROPERTY_CACHE_SIZE;
     }
   };
 
@@ -30,6 +30,10 @@ public class PropertyCache {
         properties.put(message.getName(), message.getValue());
       }
     });
+  }
+
+  public void clear() {
+    properties.clear();
   }
 
   public String getJsonProperties() {

@@ -7,6 +7,7 @@ var makingMusic = makingMusic || {};
   this.initializeProperties = function(json) {
     var response = JSON.parse(json);
     var properties = response.properties;
+    document.getElementById("property-form").reset();
     for ( var name in properties) {
       var value = properties[name];
       if (name === "maximum-concurrent-notes") {
@@ -47,7 +48,7 @@ var makingMusic = makingMusic || {};
     this.selectTab("home");
     document.getElementById("property-form").reset();
     setInterval(this.onPoll.bind(this), refreshIntervalMillis);
-    //this.onPoll();
+    this.onPoll();
   }
   this.onPoll = function() {
     this.refreshImage();

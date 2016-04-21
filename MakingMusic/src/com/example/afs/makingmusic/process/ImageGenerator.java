@@ -21,7 +21,6 @@ import org.opencv.imgproc.Imgproc;
 
 import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.Step;
-import com.example.afs.makingmusic.constants.Constants;
 import com.example.afs.makingmusic.constants.Properties;
 
 public class ImageGenerator extends Step<Frame> {
@@ -32,7 +31,6 @@ public class ImageGenerator extends Step<Frame> {
 
   public ImageGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
-    resetProperties();
     setMonitorPropertyChanges(true);
   }
 
@@ -54,14 +52,7 @@ public class ImageGenerator extends Step<Frame> {
     case Properties.MAXIMUM_CONCURRENT_NOTES:
       maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
       break;
-    case Properties.RESET:
-      resetProperties();
-      break;
     }
-  }
-
-  private void resetProperties() {
-    maximumConcurrentNotes = Constants.LOWER_MAX_NOTES_LIMIT;
   }
 
   private BufferedImage toBufferedImage(Mat matrix) {

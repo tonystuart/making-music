@@ -11,9 +11,9 @@ package com.example.afs.makingmusic.constants;
 
 public class Constants {
 
+  public static final int DEFAULT_MAXIMUM_CONCURRENT_NOTES = 10;
   public static final int DRUM_CHANNEL_INDEX = 9;
-  public static final int LOWER_MAX_NOTES_LIMIT = 10;
-  public static final int MAX_PROPERTIES = 100;
   public static final int NOTE_DURATION_MILLIS = 1000;
+  public static final int PROPERTY_CACHE_SIZE = 100;
 
 }
