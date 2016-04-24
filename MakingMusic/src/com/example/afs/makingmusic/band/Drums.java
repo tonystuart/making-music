@@ -82,7 +82,7 @@ public class Drums {
 
   public Instrument getDrumKit1() {
     if (drumKit1 == null) {
-      drumKit1 = new Instrument("drum-kit-1", 9, 0, 64, //
+      drumKit1 = new Instrument("drum-kit-1", 9, 0, 127, //
           getDrum("low-wood-block"), //
           getDrum("hand-clap"), //
           getDrum("cowbell"), //
@@ -95,7 +95,7 @@ public class Drums {
 
   public Instrument getDrumKit2() {
     if (drumKit2 == null) {
-      drumKit2 = new Instrument("drum-kit-2", 9, 0, 64, //
+      drumKit2 = new Instrument("drum-kit-2", 9, 0, 127, //
           getDrum("snare-drum-1"), //
           getDrum("low-tom-1"), //
           getDrum("mid-tom-1"), //
@@ -107,7 +107,7 @@ public class Drums {
 
   public Instrument getDrumKit3() {
     if (drumKit3 == null) {
-      drumKit3 = new Instrument("drum-kit-3", 9, 0, 64, //
+      drumKit3 = new Instrument("drum-kit-3", 9, 0, 127, //
           getDrum("bass-drum-1"));
     }
     return drumKit3;
