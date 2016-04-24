@@ -7,13 +7,18 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.makingmusic.constants;
+package com.example.afs.makingmusic.common;
 
-import java.util.concurrent.TimeUnit;
+import java.util.LinkedList;
 
-public class Time {
+public class History {
+  private LinkedList<Metrics> metrics;
 
-  public static final long FRAME_RATE_MILLIS = TimeUnit.SECONDS.toMillis(1) / 8;
-  public static final long RESET_INTERVAL_MILLIS = TimeUnit.MINUTES.toMillis(5);
+  public LinkedList<Metrics> getMetrics() {
+    return metrics;
+  }
 
+  public void setMetrics(LinkedList<Metrics> metrics) {
+    this.metrics = metrics;
+  }
 }

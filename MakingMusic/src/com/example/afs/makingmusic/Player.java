@@ -9,10 +9,11 @@
 
 package com.example.afs.makingmusic;
 
-import com.example.afs.makingmusic.constants.Time;
+import com.example.afs.makingmusic.constants.Durations;
 import com.example.afs.makingmusic.process.CameraReader;
 import com.example.afs.makingmusic.process.ImageGenerator;
 import com.example.afs.makingmusic.process.ImageViewer;
+import com.example.afs.makingmusic.process.MetricsProcessor;
 import com.example.afs.makingmusic.process.MotionDetector;
 import com.example.afs.makingmusic.process.MusicGenerator;
 import com.example.afs.makingmusic.process.ResetMessagePublisher;
@@ -25,8 +26,10 @@ public class Player {
   }
 
   public void play() {
+    MetricsProcessor metricsProcessor = new MetricsProcessor(Durations.METRICS_INTERVAL);
+    metricsProcessor.start();
 
-    CameraReader cameraReader = new CameraReader(Time.FRAME_RATE_MILLIS);
+    CameraReader cameraReader = new CameraReader(Durations.FRAME_INTERVAL);
     cameraReader.start();
 
     MotionDetector motionDetector = new MotionDetector(cameraReader.getOutputQueue());
@@ -41,7 +44,7 @@ public class Player {
     ImageViewer imageViewer = new ImageViewer(imageGenerator.getOutputQueue());
     imageViewer.start();
 
-    ResetMessagePublisher resetMessagePublisher = new ResetMessagePublisher(Time.RESET_INTERVAL_MILLIS);
+    ResetMessagePublisher resetMessagePublisher = new ResetMessagePublisher(Durations.RESET_INTERVAL);
     resetMessagePublisher.start();
   }
 

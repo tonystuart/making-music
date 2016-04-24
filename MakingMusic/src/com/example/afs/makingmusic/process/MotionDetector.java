@@ -22,6 +22,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.video.BackgroundSubtractorMOG2;
 import org.opencv.video.Video;
 
+import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.Step;
 
 public class MotionDetector extends Step<Frame> {
@@ -30,6 +31,7 @@ public class MotionDetector extends Step<Frame> {
 
   private BackgroundSubtractorMOG2 backgroundSubtractor;
   private Mat foregroundMask;
+  private int itemCount;
 
   public MotionDetector(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
@@ -52,8 +54,10 @@ public class MotionDetector extends Step<Frame> {
       if (contourArea > MotionDetector.MINIMUM_AREA) {
         Rect item = Imgproc.boundingRect(contour);
         frame.addItem(item);
+        itemCount++;
       }
     }
+    Injector.getMetrics().setItems(itemCount);
   }
 
 }

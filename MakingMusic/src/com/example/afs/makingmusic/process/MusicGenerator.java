@@ -23,7 +23,7 @@ import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.MulDiv;
 import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.Step;
-import com.example.afs.makingmusic.constants.Constants;
+import com.example.afs.makingmusic.constants.Durations;
 import com.example.afs.makingmusic.constants.Properties;
 import com.example.afs.makingmusic.sound.Instrument;
 import com.example.afs.makingmusic.sound.Sound;
@@ -46,10 +46,10 @@ public class MusicGenerator extends Step<Frame> {
       int nextChannel = 0;
       for (int i = 0; i < instruments.length; i++) {
         if (instruments[i].isDrumKit()) {
-          channels[i] = Constants.DRUM_CHANNEL_INDEX;
+          channels[i] = DRUM_CHANNEL_INDEX;
         } else {
           channels[i] = nextChannel++;
-          if (nextChannel == Constants.DRUM_CHANNEL_INDEX) {
+          if (nextChannel == DRUM_CHANNEL_INDEX) {
             nextChannel++;
           }
           int programIndex = instruments[i].getProgramIndex();
@@ -72,10 +72,13 @@ public class MusicGenerator extends Step<Frame> {
 
   }
 
+  public static final int DRUM_CHANNEL_INDEX = 9;
+
   private Set<ActiveSound> activeSounds;
   private ChannelAssignments channelAssignments;
   private Set<String> instrumentNames;
   private int maximumConcurrentNotes;
+  private int noteCount;
   private Synthesizer synthesizer;
 
   public MusicGenerator(BlockingQueue<Frame> inputQueue) {
@@ -109,12 +112,14 @@ public class MusicGenerator extends Step<Frame> {
         int channel = channelAssignments.getChannel(index);
         Sound sound = MulDiv.scale(width, item.x, instrument.getSounds());
         int value = sound.getValue();
-        ActiveSound activeSound = new ActiveSound(channel, value, tick + Constants.NOTE_DURATION_MILLIS);
-        if (channel == Constants.DRUM_CHANNEL_INDEX || !activeSounds.contains(activeSound)) {
+        ActiveSound activeSound = new ActiveSound(channel, value, tick + Durations.NOTE_DURATION);
+        if (channel == DRUM_CHANNEL_INDEX || !activeSounds.contains(activeSound)) {
           activeSounds.add(activeSound);
           synthesizer.pressKey(channel, value, instrument.getVelocity());
+          noteCount++;
         }
       }
+      Injector.getMetrics().setNotes(noteCount);
       // System.out.println(expiringSounds.size() + "/" + activeSounds.size());
     }
   }

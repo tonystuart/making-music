@@ -9,11 +9,10 @@
 
 package com.example.afs.makingmusic.constants;
 
-public class Constants {
+public class FileNames {
 
-  public static final int DEFAULT_MAXIMUM_CONCURRENT_NOTES = 10;
-  public static final int DRUM_CHANNEL_INDEX = 9;
-  public static final int NOTE_DURATION_MILLIS = 1000;
-  public static final int PROPERTY_CACHE_SIZE = 100;
+  public static final String LOADAVG = "/proc/loadavg";
+  public static final String METRICS = "/home/pi/Metrics";
+  public static final String TEMPERATURE = "/sys/class/thermal/thermal_zone0/temp";
 
 }

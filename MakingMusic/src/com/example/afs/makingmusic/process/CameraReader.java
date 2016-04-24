@@ -13,6 +13,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
+import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.ScheduledStep;
 
 public class CameraReader extends ScheduledStep<Frame> {
@@ -22,6 +23,7 @@ public class CameraReader extends ScheduledStep<Frame> {
   }
 
   private VideoCapture camera;
+  private int frameCount;
 
   public CameraReader(long intervalMillis) {
     super(intervalMillis);
@@ -37,6 +39,7 @@ public class CameraReader extends ScheduledStep<Frame> {
       camera.release();
       camera = new VideoCapture(0);
     }
+    Injector.getMetrics().setFrames(++frameCount);
     return new Frame(image);
   }
 

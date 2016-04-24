@@ -10,11 +10,13 @@
 package com.example.afs.makingmusic.common;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
-public class Streams {
-
+public class FileUtilities {
   public static String read(InputStream inputStream) {
     try {
       int rc;
@@ -24,6 +26,23 @@ public class Streams {
         baos.write(buffer, 0, rc);
       }
       return baos.toString("utf-8");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static String read(String fileName) {
+    try (InputStream inputStream = new FileInputStream(fileName)) {
+      String contents = read(inputStream);
+      return contents;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void write(String fileName, String contents) {
+    try (OutputStream outputStream = new FileOutputStream(fileName)) {
+      outputStream.write(contents.getBytes());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

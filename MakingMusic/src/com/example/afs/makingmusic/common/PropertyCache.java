@@ -13,13 +13,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.example.afs.makingmusic.common.MessageBroker.Subscriber;
-import com.example.afs.makingmusic.constants.Constants;
+import com.example.afs.makingmusic.constants.Limits;
 import com.google.gson.Gson;
 
 public class PropertyCache {
+  private static final Gson GSON = new Gson();
+
   private Map<String, String> properties = new LinkedHashMap<String, String>() {
     protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
-      return size() == Constants.PROPERTY_CACHE_SIZE;
+      return size() == Limits.PROPERTY_SIZE;
     }
   };
 
@@ -37,8 +39,7 @@ public class PropertyCache {
   }
 
   public String getJsonProperties() {
-    Gson gson = new Gson();
-    String jsonString = gson.toJson(this);
+    String jsonString = GSON.toJson(this);
     return jsonString;
   }
 

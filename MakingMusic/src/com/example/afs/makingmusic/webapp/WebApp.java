@@ -29,10 +29,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
-import com.example.afs.makingmusic.constants.Time;
+import com.example.afs.makingmusic.common.Injector;
+import com.example.afs.makingmusic.constants.Durations;
 import com.example.afs.makingmusic.process.CameraReader;
 import com.example.afs.makingmusic.process.ImageCatcher;
 import com.example.afs.makingmusic.process.ImageGenerator;
+import com.example.afs.makingmusic.process.MetricsProcessor;
 import com.example.afs.makingmusic.process.MotionDetector;
 import com.example.afs.makingmusic.process.MusicGenerator;
 import com.example.afs.makingmusic.process.ResetMessagePublisher;
@@ -40,6 +42,9 @@ import com.example.afs.makingmusic.process.ResetMessagePublisher;
 public class WebApp {
 
   public static class RedirectingDefaultServlet extends DefaultServlet {
+    private int pageCount;
+    private int redirectCount;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
       if (!request.getServerName().equals(request.getLocalAddr())) {
@@ -47,8 +52,12 @@ public class WebApp {
         String redirectLocation = "http://" + request.getLocalAddr() + ":" + PORT;
         response.setHeader("Location", redirectLocation);
         response.setStatus(Response.SC_TEMPORARY_REDIRECT);
+        Injector.getMetrics().setRedirects(++redirectCount);
       } else {
         super.doGet(request, response);
+        if ("/MakingMusic.html".equals(request.getRequestURI())) {
+          Injector.getMetrics().setPages(++pageCount);
+        }
       }
     }
   }
@@ -68,7 +77,10 @@ public class WebApp {
   }
 
   private void createProcess() {
-    CameraReader cameraReader = new CameraReader(Time.FRAME_RATE_MILLIS);
+    MetricsProcessor metricsProcessor = new MetricsProcessor(Durations.METRICS_INTERVAL);
+    metricsProcessor.start();
+
+    CameraReader cameraReader = new CameraReader(Durations.FRAME_INTERVAL);
     cameraReader.start();
 
     MotionDetector motionDetector = new MotionDetector(cameraReader.getOutputQueue());
@@ -83,7 +95,7 @@ public class WebApp {
     ImageCatcher imageCatcher = new ImageCatcher(imageGenerator.getOutputQueue());
     imageCatcher.start();
 
-    ResetMessagePublisher resetMessagePublisher = new ResetMessagePublisher(Time.RESET_INTERVAL_MILLIS);
+    ResetMessagePublisher resetMessagePublisher = new ResetMessagePublisher(Durations.RESET_INTERVAL);
     resetMessagePublisher.start();
   }
 
@@ -99,6 +111,9 @@ public class WebApp {
     defaultServletHolder.setInitParameter("resourceBase", getResourceBase());
     LOG.info("resourceBase=" + defaultServletHolder.getInitParameter("resourceBase"));
     ServletContextHandler context = new ServletContextHandler();
+    context.setWelcomeFiles(new String[] {
+      "MakingMusic.html"
+    });
     context.addServlet(defaultServletHolder, "/");
     context.addServlet(CurrentFrameServlet.class, "/currentFrame.jpg");
     context.addServlet(RestServlet.class, "/rest/v1/*");

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.TimeKeeper;
 import com.example.afs.makingmusic.process.ImageCatcher;
 
@@ -35,6 +36,8 @@ public class CurrentFrameServlet extends HttpServlet {
     timeKeeper.endLoop();
   }
 
+  private int imageCount;
+
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -44,6 +47,7 @@ public class CurrentFrameServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     getImage(resp);
+    Injector.getMetrics().setImages(++imageCount);
   }
 
 }
