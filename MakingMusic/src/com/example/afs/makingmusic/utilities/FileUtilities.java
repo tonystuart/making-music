@@ -7,7 +7,7 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.makingmusic.common;
+package com.example.afs.makingmusic.utilities;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
 public class FileUtilities {
+
   public static String read(InputStream inputStream) {
     try {
       int rc;
@@ -40,12 +43,41 @@ public class FileUtilities {
     }
   }
 
+  public static <T> T readJson(String fileName, Class<T> classOfT) {
+    String json = read(fileName);
+    T object = GsonUtilities.fromJson(json, classOfT);
+    return object;
+  }
+
   public static void write(String fileName, String contents) {
     try (OutputStream outputStream = new FileOutputStream(fileName)) {
       outputStream.write(contents.getBytes());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static void writeJson(HttpServletResponse response, Object object) {
+    try {
+      response.addHeader("Content-Type", "application/json");
+      writeJson(response.getOutputStream(), object);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void writeJson(OutputStream outputStream, Object object) {
+    try {
+      String json = GsonUtilities.toJson(object);
+      outputStream.write(json.getBytes());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void writeJson(String fileName, Object object) {
+    String json = GsonUtilities.toJson(object);
+    write(fileName, json);
   }
 
 }

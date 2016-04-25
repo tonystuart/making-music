@@ -10,6 +10,7 @@
 package com.example.afs.makingmusic.common;
 
 public class Metrics {
+
   private String cpu;
   private int frames;
   private int images;
@@ -114,4 +115,5 @@ public class Metrics {
   public String toString() {
     return "Metrics [cpu=" + cpu + ", frames=" + frames + ", images=" + images + ", instruments=" + instruments + ", items=" + items + ", millis=" + millis + ", notes=" + notes + ", pages=" + pages + ", properties=" + properties + ", redirects=" + redirects + ", temperature=" + temperature + "]";
   }
+
 }

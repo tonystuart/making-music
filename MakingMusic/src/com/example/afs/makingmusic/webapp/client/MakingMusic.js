@@ -4,10 +4,32 @@
 var makingMusic = makingMusic || {};
 (function() {
   var refreshIntervalMillis = 1000;
-  this.initializeProperties = function(json) {
-    var response = JSON.parse(json);
-    var properties = response.properties;
-    document.getElementById("property-form").reset();
+  this.initializeInstruments = function(propertyCache) {
+    var properties = propertyCache.properties;
+    document.getElementById("instrument-form").reset();
+    for ( var name in properties) {
+      var value = properties[name];
+      if (name.match(/^instrument-/)) {
+        document.getElementById(name).checked = (value === "true");
+      }
+    }
+  }
+  this.initializeMetrics = function(metrics) {
+    var table = document.createElement("TABLE");
+    for (var name in metrics) {
+      var value = metrics[name];
+      var row = table.insertRow();
+      var nameCell = row.insertCell(0);
+      var valueCell = row.insertCell(1);
+      nameCell.innerHTML = name;
+      valueCell.innerHTML = value;
+    }
+    var metricsContainer = document.getElementById("metrics-container");
+    metricsContainer.innerHTML = "";
+    metricsContainer.appendChild(table);
+  }
+  this.initializeSettings = function(propertyCache) {
+    var properties = propertyCache.properties;
     for ( var name in properties) {
       var value = properties[name];
       if (name === "maximum-concurrent-notes") {
@@ -16,9 +38,21 @@ var makingMusic = makingMusic || {};
           input.value = value;
           input.defaultValue = value;
         }
-      } else if (name.match(/^instrument-/)) {
-        document.getElementById(name).checked = (value === "true");
       }
+    }
+  }
+  this.initializeTab = function(requestedTab, json) {
+    var response = JSON.parse(json);
+    switch (requestedTab) {
+    case "instruments":
+      this.initializeInstruments(response);
+      break;
+    case "metrics":
+      this.initializeMetrics(response);
+      break;
+    case "settings":
+      this.initializeSettings(response);
+      break;
     }
   }
   this.onClick = function(event) {
@@ -46,26 +80,40 @@ var makingMusic = makingMusic || {};
   }
   this.onLoad = function() {
     this.selectTab("home");
-    document.getElementById("property-form").reset();
+    document.getElementById("instrument-form").reset();
     setInterval(this.onPoll.bind(this), refreshIntervalMillis);
-    this.onPoll();
   }
   this.onPoll = function() {
-    this.refreshImage();
-    this.refreshProperties();
+    switch (this.currentTab) {
+    case "home":
+      this.refreshImage();
+      break;
+    case "info":
+      break;
+    case "instruments":
+      this.refreshTab();
+      break;
+    case "metrics":
+      this.refreshTab();
+      break;
+    case "settings":
+      this.refreshTab();
+      break;
+    }
   }
   this.selectTab = function(name) {
     var i = null, tab = null;
     var tabs = document.querySelectorAll(".tab");
     for (i = 0; i < tabs.length; i++) {
       tab = tabs[i];
-      console.log(tab);
       if (tab.id == name) {
         tab.style['display'] = 'flex';
       } else {
         tab.style['display'] = 'none';
       }
     }
+    this.currentTab = name;
+    this.onPoll();
   }
   this.setProperty = function(name, value) {
     var httpRequest = new XMLHttpRequest();
@@ -76,15 +124,16 @@ var makingMusic = makingMusic || {};
     var currentFrame = document.getElementById("current-frame");
     currentFrame.src = "currentFrame.jpg?t=" + new Date().getTime();
   }
-  this.refreshProperties = function() {
+  this.refreshTab = function() {
     var self = this;
+    var requestedTab = this.currentTab;
     var httpRequest = new XMLHttpRequest();
     httpRequest.onreadystatechange = function() {
       if (httpRequest.readyState == 4 && httpRequest.status == 200) {
-        self.initializeProperties(httpRequest.responseText);
+        self.initializeTab(requestedTab, httpRequest.responseText);
       }
     };
-    httpRequest.open("GET", "rest/v1/properties", true);
+    httpRequest.open("GET", "rest/v1/" + requestedTab, true);
     httpRequest.send();
   }
 }).apply(makingMusic);

@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.PropertyChange;
+import com.example.afs.makingmusic.utilities.FileUtilities;
 
 public class RestServlet extends HttpServlet {
 
@@ -26,9 +27,12 @@ public class RestServlet extends HttpServlet {
   private Matchers matchers = new Matchers();
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    if (matchers.isMatch("^/properties$", request.getPathInfo())) {
-      response.addHeader("Content-Type", "application/json");
-      response.getOutputStream().write(Injector.getPropertyCache().getJsonProperties().getBytes());
+    if (matchers.isMatch("^/instruments$", request.getPathInfo())) {
+      FileUtilities.writeJson(response, Injector.getPropertyCache());
+    } else if (matchers.isMatch("^/metrics$", request.getPathInfo())) {
+      FileUtilities.writeJson(response, Injector.getMetrics());
+    } else if (matchers.isMatch("^/settings$", request.getPathInfo())) {
+      FileUtilities.writeJson(response, Injector.getPropertyCache());
     }
   }
 

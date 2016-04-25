@@ -11,7 +11,6 @@ package com.example.afs.makingmusic.process;
 
 import java.util.LinkedList;
 
-import com.example.afs.makingmusic.common.FileUtilities;
 import com.example.afs.makingmusic.common.History;
 import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.PropertyChange;
@@ -19,11 +18,9 @@ import com.example.afs.makingmusic.common.ScheduledStep;
 import com.example.afs.makingmusic.constants.FileNames;
 import com.example.afs.makingmusic.constants.Limits;
 import com.example.afs.makingmusic.constants.Properties;
-import com.google.gson.Gson;
+import com.example.afs.makingmusic.utilities.FileUtilities;
 
 public class MetricsProcessor extends ScheduledStep<Void> {
-
-  private static final Gson GSON = new Gson();
 
   private History history;
   private int instruments;
@@ -44,7 +41,7 @@ public class MetricsProcessor extends ScheduledStep<Void> {
     Injector.getMetrics().setMillis(elapsedTimeMillis);
     Injector.getMetrics().setCpu(FileUtilities.read(FileNames.LOADAVG));
     Injector.getMetrics().setTemperature(Integer.parseInt(FileUtilities.read(FileNames.TEMPERATURE).trim()));
-    writeMetrics();
+    FileUtilities.writeJson(FileNames.METRICS, history);
     return null;
   }
 
@@ -59,8 +56,7 @@ public class MetricsProcessor extends ScheduledStep<Void> {
 
   private void restoreMetrics() {
     try {
-      String json = FileUtilities.read(FileNames.METRICS);
-      history = GSON.fromJson(json, History.class);
+      history = FileUtilities.readJson(FileNames.METRICS, History.class);
       while (history.getMetrics().size() >= Limits.HISTORY_SIZE) {
         history.getMetrics().removeFirst();
       }
@@ -69,15 +65,6 @@ public class MetricsProcessor extends ScheduledStep<Void> {
       history.setMetrics(new LinkedList<>());
     }
     history.getMetrics().add(Injector.getMetrics());
-  }
-
-  private void writeMetrics() {
-    try {
-      String json = GSON.toJson(history);
-      FileUtilities.write(FileNames.METRICS, json);
-    } catch (RuntimeException e) {
-      // Ignore
-    }
   }
 
 }

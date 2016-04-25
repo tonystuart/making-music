@@ -14,10 +14,8 @@ import java.util.Map;
 
 import com.example.afs.makingmusic.common.MessageBroker.Subscriber;
 import com.example.afs.makingmusic.constants.Limits;
-import com.google.gson.Gson;
 
 public class PropertyCache {
-  private static final Gson GSON = new Gson();
 
   private Map<String, String> properties = new LinkedHashMap<String, String>() {
     protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
@@ -36,11 +34,6 @@ public class PropertyCache {
 
   public void clear() {
     properties.clear();
-  }
-
-  public String getJsonProperties() {
-    String jsonString = GSON.toJson(this);
-    return jsonString;
   }
 
   public Map<String, String> getProperties() {
