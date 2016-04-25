@@ -65,3 +65,12 @@ input[type='text'] {
   flex-wrap: wrap;
   justify-content: space-between;
 }
+
+#info img {
+	max-width: 134px;
+	border-top: 1px solid white;
+}
+
+.centered {
+	text-align: center;
+}
