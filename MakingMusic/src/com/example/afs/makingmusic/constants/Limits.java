@@ -12,7 +12,7 @@ package com.example.afs.makingmusic.constants;
 public class Limits {
 
   public static final int ACTIVE_NOTES = 10;
-  public static final int HISTORY_SIZE = 100;
+  public static final int HISTORY_SIZE = 200;
   public static final int PROPERTY_SIZE = 100;
 
 }
