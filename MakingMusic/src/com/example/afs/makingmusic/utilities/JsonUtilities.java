@@ -11,7 +11,7 @@ package com.example.afs.makingmusic.utilities;
 
 import com.google.gson.Gson;
 
-public class GsonUtilities {
+public class JsonUtilities {
   private static final Gson GSON = new Gson();
 
   public static <T> T fromJson(String json, Class<T> classOfT) {

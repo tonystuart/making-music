@@ -45,7 +45,7 @@ public class FileUtilities {
 
   public static <T> T readJson(String fileName, Class<T> classOfT) {
     String json = read(fileName);
-    T object = GsonUtilities.fromJson(json, classOfT);
+    T object = JsonUtilities.fromJson(json, classOfT);
     return object;
   }
 
@@ -68,7 +68,7 @@ public class FileUtilities {
 
   public static void writeJson(OutputStream outputStream, Object object) {
     try {
-      String json = GsonUtilities.toJson(object);
+      String json = JsonUtilities.toJson(object);
       outputStream.write(json.getBytes());
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -76,7 +76,7 @@ public class FileUtilities {
   }
 
   public static void writeJson(String fileName, Object object) {
-    String json = GsonUtilities.toJson(object);
+    String json = JsonUtilities.toJson(object);
     write(fileName, json);
   }
 
