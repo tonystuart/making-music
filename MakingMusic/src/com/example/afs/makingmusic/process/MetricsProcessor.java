@@ -19,6 +19,7 @@ import com.example.afs.makingmusic.constants.FileNames;
 import com.example.afs.makingmusic.constants.Limits;
 import com.example.afs.makingmusic.constants.Properties;
 import com.example.afs.makingmusic.utilities.FileUtilities;
+import com.example.afs.makingmusic.utilities.TimeUtilities;
 
 public class MetricsProcessor extends ScheduledStep<Void> {
 
@@ -38,7 +39,7 @@ public class MetricsProcessor extends ScheduledStep<Void> {
   public Void process() throws InterruptedException {
     long currentTimeMillis = System.currentTimeMillis();
     long elapsedTimeMillis = currentTimeMillis - startTimeMillis;
-    Injector.getMetrics().setMillis(elapsedTimeMillis);
+    Injector.getMetrics().setUptime(TimeUtilities.getLabeledDuration(elapsedTimeMillis));
     Injector.getMetrics().setCpu(FileUtilities.read(FileNames.LOADAVG));
     Injector.getMetrics().setTemperature(Integer.parseInt(FileUtilities.read(FileNames.TEMPERATURE).trim()));
     FileUtilities.writeJson(FileNames.METRICS, history);

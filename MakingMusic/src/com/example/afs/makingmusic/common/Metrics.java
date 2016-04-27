@@ -16,12 +16,12 @@ public class Metrics {
   private int images;
   private int instruments;
   private int items;
-  private long millis;
   private int notes;
   private int pages;
   private int properties;
   private int redirects;
   private int temperature;
+  private String uptime;
 
   public String getCpu() {
     return cpu;
@@ -41,10 +41,6 @@ public class Metrics {
 
   public int getItems() {
     return items;
-  }
-
-  public long getMillis() {
-    return millis;
   }
 
   public int getNotes() {
@@ -67,6 +63,10 @@ public class Metrics {
     return temperature;
   }
 
+  public String getUptime() {
+    return uptime;
+  }
+
   public void setCpu(String cpu) {
     this.cpu = cpu;
   }
@@ -85,10 +85,6 @@ public class Metrics {
 
   public void setItems(int items) {
     this.items = items;
-  }
-
-  public void setMillis(long millis) {
-    this.millis = millis;
   }
 
   public void setNotes(int notes) {
@@ -111,9 +107,13 @@ public class Metrics {
     this.temperature = temperature;
   }
 
+  public void setUptime(String uptime) {
+    this.uptime = uptime;
+  }
+
   @Override
   public String toString() {
-    return "Metrics [cpu=" + cpu + ", frames=" + frames + ", images=" + images + ", instruments=" + instruments + ", items=" + items + ", millis=" + millis + ", notes=" + notes + ", pages=" + pages + ", properties=" + properties + ", redirects=" + redirects + ", temperature=" + temperature + "]";
+    return "Metrics [cpu=" + cpu + ", frames=" + frames + ", images=" + images + ", instruments=" + instruments + ", items=" + items + ", notes=" + notes + ", pages=" + pages + ", properties=" + properties + ", redirects=" + redirects + ", temperature=" + temperature + ", uptime=" + uptime + "]";
   }
 
 }
