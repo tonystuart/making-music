@@ -106,6 +106,19 @@
                     Drum Kit 3
                 </label>
             </div>
+            <div>
+                How would you like to assign the instruments?
+                <label>
+                    <input type='radio' name='enum-assignment-method' value='position'
+                        id='enum-assignment-method-position'>
+                    By vertical position (top to bottom)
+                </label>
+                <label>
+                    <input type='radio' name='enum-assignment-method' value='color'
+                        id='enum-assignment-method-color'>
+                    By color (red, orange, yellow, green, blue, violet)
+                </label>
+            </div>
         </form>
     </div>
     <div id='info' class='tab'>
@@ -117,9 +130,11 @@
             <p>Making Music takes a picture eight times a second and analyzes it for motion. It then converts the
                 horizontal position of the motion into notes in a four octave range, with low notes on the left and high
                 notes on the right.</p>
-            <p>Next, it uses the vertical position of the motion to assign an instrument to the motion, with Grand
-                Piano on the top and Drum Kit 3 on the bottom. The Instruments tab lets you select the instruments you'd
-                like to hear.</p>
+            <p>Next, it uses the vertical position (or the color) of the motion to assign an instrument from Grand
+                Piano to Drum Kit 3. The Instruments tab lets you select the instruments you'd like to hear as well as
+                how to assign the instruments.</p>
+            <p>Finally, it synthesizes the sound associated with each note and instrument and plays the sounds
+                through the amplifier and speaker. It's then ready to take the next picture and repeat the process.</p>
             <p>This project was created by Tony Stuart and is funded in part by 4Culture, the Cultural Development
                 Authority of King County.</p>
             <p class='centered'>

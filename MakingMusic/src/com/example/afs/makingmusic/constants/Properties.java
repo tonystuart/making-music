@@ -11,6 +11,11 @@ package com.example.afs.makingmusic.constants;
 
 public class Properties {
 
+  public enum AssignmentMethod {
+    COLOR, POSITION
+  }
+
+  public static final String ASSIGNMENT_METHOD = "enum-assignment-method";
   public static final String INSTRUMENT_PREFIX = "instrument-";
   public static final String MAXIMUM_CONCURRENT_NOTES = "maximum-concurrent-notes";
   public static final String RESET = "reset";

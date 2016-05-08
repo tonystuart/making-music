@@ -14,6 +14,7 @@ import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.ScheduledStep;
 import com.example.afs.makingmusic.constants.Limits;
 import com.example.afs.makingmusic.constants.Properties;
+import com.example.afs.makingmusic.constants.Properties.AssignmentMethod;
 
 public class ResetMessagePublisher extends ScheduledStep<Void> {
 
@@ -28,6 +29,7 @@ public class ResetMessagePublisher extends ScheduledStep<Void> {
     Injector.getMessageBroker().publish(new PropertyChange(Properties.RESET, null));
     Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, Integer.toString(Limits.ACTIVE_NOTES)));
     Injector.getMessageBroker().publish(new PropertyChange(Properties.INSTRUMENT_PREFIX + Injector.getInstruments().getDefaultInstrumentName(), Boolean.TRUE.toString()));
+    Injector.getMessageBroker().publish(new PropertyChange(Properties.ASSIGNMENT_METHOD, AssignmentMethod.POSITION.name().toLowerCase()));
     return null;
   }
 

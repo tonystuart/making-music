@@ -11,6 +11,8 @@ var makingMusic = makingMusic || {};
       var value = properties[name];
       if (name.match(/^instrument-/)) {
         document.getElementById(name).checked = (value === "true");
+      } else if (name.match(/^enum-/)) {
+        document.getElementById(name + "-" + value).checked = true;
       }
     }
   }
@@ -71,12 +73,17 @@ var makingMusic = makingMusic || {};
       this.setProperty(name, value);
       input.defaultValue = value;
     }
+    match = id.match(/^enum-(.+)/);
+    if (match !== null) {
+      var name = target.name;
+      var value = target.value;
+      this.setProperty(name, value);
+    }
     match = id.match(/^tab-(.+)/);
     if (match !== null) {
       var name = match[1];
       this.selectTab(name);
     }
-
   }
   this.onLoad = function() {
     this.selectTab("home");

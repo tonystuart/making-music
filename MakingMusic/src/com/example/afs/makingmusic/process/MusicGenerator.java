@@ -9,6 +9,7 @@
 
 package com.example.afs.makingmusic.process;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,7 +17,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 
 import com.example.afs.fluidsynth.Synthesizer;
 import com.example.afs.makingmusic.common.Injector;
@@ -25,6 +29,7 @@ import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.Step;
 import com.example.afs.makingmusic.constants.Durations;
 import com.example.afs.makingmusic.constants.Properties;
+import com.example.afs.makingmusic.constants.Properties.AssignmentMethod;
 import com.example.afs.makingmusic.sound.Instrument;
 import com.example.afs.makingmusic.sound.Sound;
 
@@ -75,6 +80,7 @@ public class MusicGenerator extends Step<Frame> {
   public static final int DRUM_CHANNEL_INDEX = 9;
 
   private Set<ActiveSound> activeSounds;
+  private AssignmentMethod assignmentMethod;
   private ChannelAssignments channelAssignments;
   private Set<String> instrumentNames;
   private int maximumConcurrentNotes;
@@ -92,7 +98,6 @@ public class MusicGenerator extends Step<Frame> {
 
   @Override
   public void process(Frame frame) {
-    int height = frame.getImageMatrix().height();
     int width = frame.getImageMatrix().width();
     long tick = System.currentTimeMillis();
     List<ActiveSound> expiringSounds = new ArrayList<>(activeSounds.size());
@@ -107,7 +112,7 @@ public class MusicGenerator extends Step<Frame> {
       Iterator<Rect> itemIterator = frame.getItems().iterator();
       while (itemIterator.hasNext() && activeSounds.size() < maximumConcurrentNotes) {
         Rect item = itemIterator.next();
-        int index = MulDiv.scale(height, item.y, channelAssignments.size());
+        int index = getInstrumentIndex(frame, item);
         Instrument instrument = channelAssignments.getInstrument(index);
         int channel = channelAssignments.getChannel(index);
         Sound sound = MulDiv.scale(width, item.x, instrument.getSounds());
@@ -127,10 +132,14 @@ public class MusicGenerator extends Step<Frame> {
   @Override
   protected void doPropertyChange(PropertyChange propertyChange) {
     switch (propertyChange.getName()) {
+    case Properties.ASSIGNMENT_METHOD:
+      assignmentMethod = AssignmentMethod.valueOf(propertyChange.getValue().toUpperCase());
+      break;
     case Properties.MAXIMUM_CONCURRENT_NOTES:
       maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
       break;
     case Properties.RESET:
+      assignmentMethod = null;
       instrumentNames.clear();
       break;
     default:
@@ -139,6 +148,29 @@ public class MusicGenerator extends Step<Frame> {
       }
       break;
     }
+  }
+
+  private int getInstrumentIndex(Frame frame, Rect item) {
+    int index;
+    if (assignmentMethod == null || assignmentMethod == AssignmentMethod.POSITION) {
+      int height = frame.getImageMatrix().height();
+      index = MulDiv.scale(height, item.y, channelAssignments.size());
+    } else {
+      Mat itemMat = frame.getImageMatrix().submat(item);
+      Scalar mean = Core.mean(itemMat);
+      float[] hsb = new float[3];
+      Color.RGBtoHSB((int) mean.val[2], (int) mean.val[1], (int) mean.val[0], hsb);
+      int hue = (int) (hsb[0] * 360);
+      int highRed = hue - 330;
+      if (highRed > 0) {
+        hue = highRed;
+      } else {
+        hue += 30;
+      }
+      index = MulDiv.scale(361, hue, channelAssignments.size());
+      //System.out.println("hsb[0]=" + hsb[0] + ", hsb[0]*360=" + hsb[0] * 360 + ", hue=" + hue + ", index=" + index);
+    }
+    return index;
   }
 
   private void updateActiveInstruments(PropertyChange propertyChange) {
