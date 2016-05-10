@@ -161,12 +161,13 @@ public class MusicGenerator extends Step<Frame> {
       float[] hsb = new float[3];
       Color.RGBtoHSB((int) mean.val[2], (int) mean.val[1], (int) mean.val[0], hsb);
       int hue = (int) (hsb[0] * 360);
-      int highRed = hue - 330;
-      if (highRed > 0) {
-        hue = highRed;
+      // Red hues are split across 0-30 and 330-360 so rotate by 30 to group together
+      if (hue > 330) {
+        hue = hue - 330;
       } else {
         hue += 30;
       }
+      // RGBtoHSB hsb[0] is 0-1 inclusive, resulting in a total of 361 hue values
       index = MulDiv.scale(361, hue, channelAssignments.size());
       //System.out.println("hsb[0]=" + hsb[0] + ", hsb[0]*360=" + hsb[0] * 360 + ", hue=" + hue + ", index=" + index);
     }
