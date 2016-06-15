@@ -19,7 +19,6 @@ public class Injector {
   private static final Instruments instruments = new Instruments();
   private static final MessageBroker messageBroker = new MessageBroker();
   private static final Metrics metrics = new Metrics();
-  private static final PropertyCache propertyCache = new PropertyCache();
 
   public static Drums getDrums() {
     return drums;
@@ -35,10 +34,6 @@ public class Injector {
 
   public static Metrics getMetrics() {
     return metrics;
-  }
-
-  public static PropertyCache getPropertyCache() {
-    return propertyCache;
   }
 
   private Injector() {

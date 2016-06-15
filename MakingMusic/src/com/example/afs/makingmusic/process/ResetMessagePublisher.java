@@ -10,34 +10,29 @@
 package com.example.afs.makingmusic.process;
 
 import com.example.afs.makingmusic.common.Injector;
+import com.example.afs.makingmusic.common.MessageBroker.Subscriber;
 import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.ScheduledStep;
-import com.example.afs.makingmusic.constants.Limits;
-import com.example.afs.makingmusic.constants.Properties;
-import com.example.afs.makingmusic.constants.Properties.AssignmentMethod;
+import com.example.afs.makingmusic.constants.Property;
 
 public class ResetMessagePublisher extends ScheduledStep<Void> {
 
   public ResetMessagePublisher(long intervalMillis) {
     super(intervalMillis);
-    setMonitorPropertyChanges(true);
+    Injector.getMessageBroker().subscribe(PropertyChange.class, new Subscriber<PropertyChange>() {
+      @Override
+      public void onMessage(PropertyChange message) {
+        if (!message.getName().equals(Property.Names.RESET)) {
+          resetTimer();
+        }
+      }
+    });
   }
 
   @Override
   public Void process() throws InterruptedException {
-    Injector.getPropertyCache().clear();
-    Injector.getMessageBroker().publish(new PropertyChange(Properties.RESET, null));
-    Injector.getMessageBroker().publish(new PropertyChange(Properties.MAXIMUM_CONCURRENT_NOTES, Integer.toString(Limits.ACTIVE_NOTES)));
-    Injector.getMessageBroker().publish(new PropertyChange(Properties.INSTRUMENT_PREFIX + Injector.getInstruments().getDefaultInstrumentName(), Boolean.TRUE.toString()));
-    Injector.getMessageBroker().publish(new PropertyChange(Properties.ASSIGNMENT_METHOD, AssignmentMethod.POSITION.name().toLowerCase()));
+    Injector.getMessageBroker().publish(new PropertyChange(Property.Names.RESET, null));
     return null;
-  }
-
-  @Override
-  protected void onPropertyChange(PropertyChange propertyChange) {
-    if (!propertyChange.getName().equals(Properties.RESET)) {
-      resetTimer();
-    }
   }
 
 }

@@ -12,6 +12,7 @@ package com.example.afs.makingmusic.process;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
+import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 
 import org.opencv.core.Mat;
@@ -19,40 +20,31 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.Step;
-import com.example.afs.makingmusic.constants.Properties;
 
 public class ImageGenerator extends Step<Frame> {
 
   private static final Scalar GREEN = new Scalar(0, 255, 0);
   private static final Scalar RED = new Scalar(0, 0, 255);
-  private int maximumConcurrentNotes;
 
   public ImageGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
-    setMonitorPropertyChanges(true);
   }
 
   @Override
   public void process(Frame frame) {
-    int count = 0;
     Mat image = frame.getImageMatrix();
+    Iterator<MusicAnnotation> annotationIterator = frame.getMusicAnnotations().iterator();
     for (Rect item : frame.getItems()) {
-      Scalar color = count++ < maximumConcurrentNotes ? GREEN : RED;
-      Imgproc.rectangle(image, item.br(), item.tl(), color, 1);
+      if (annotationIterator.hasNext()) {
+        annotationIterator.next();
+        Imgproc.rectangle(image, item.br(), item.tl(), GREEN, 1);
+      } else {
+        Imgproc.rectangle(image, item.br(), item.tl(), RED, 1);
+      }
     }
     BufferedImage bufferedImage = toBufferedImage(image);
     frame.setBufferedImage(bufferedImage);
-  }
-
-  @Override
-  protected void doPropertyChange(PropertyChange propertyChange) {
-    switch (propertyChange.getName()) {
-    case Properties.MAXIMUM_CONCURRENT_NOTES:
-      maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
-      break;
-    }
   }
 
   private BufferedImage toBufferedImage(Mat matrix) {

@@ -9,23 +9,21 @@
 
 package com.example.afs.makingmusic.common;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MessageBroker {
 
   public interface Message {
-
   }
 
   public interface Subscriber<M extends Message> {
-
     void onMessage(M message);
-
   }
 
-  private ConcurrentHashMap<Class<? extends Message>, List<Subscriber<? extends Message>>> subscribers;
+  private Map<Class<? extends Message>, Queue<Subscriber<? extends Message>>> subscribers;
 
   public MessageBroker() {
     subscribers = new ConcurrentHashMap<>();
@@ -33,27 +31,34 @@ public class MessageBroker {
 
   @SuppressWarnings("unchecked")
   public <T extends Message> void publish(T message) {
-    List<Subscriber<? extends Message>> list = subscribers.get(message.getClass());
-    if (list != null) {
-      for (Subscriber<? extends Message> subscriber : list) {
+    Queue<Subscriber<? extends Message>> queue = subscribers.get(message.getClass());
+    if (queue != null) {
+      for (Subscriber<? extends Message> subscriber : queue) {
         ((Subscriber<T>) subscriber).onMessage(message);
       }
     }
   }
 
   public <T extends Message> void subscribe(Class<T> type, Subscriber<T> subscriber) {
-    List<Subscriber<? extends Message>> list = subscribers.get(type);
-    if (list == null) {
-      list = new LinkedList<Subscriber<? extends Message>>();
-      subscribers.put(type, list);
+    synchronized (subscribers) {
+      Queue<Subscriber<? extends Message>> queue = subscribers.get(type);
+      if (queue == null) {
+        queue = new ConcurrentLinkedQueue<Subscriber<? extends Message>>();
+        subscribers.put(type, queue);
+      }
+      queue.add(subscriber);
     }
-    list.add(subscriber);
   }
 
   public <T extends Message> void unsubscribe(Class<T> type, Subscriber<T> subscriber) {
-    List<Subscriber<? extends Message>> list = subscribers.get(type);
-    if (list != null) {
-      list.remove(subscriber);
+    synchronized (subscribers) {
+      Queue<Subscriber<? extends Message>> queue = subscribers.get(type);
+      if (queue != null) {
+        queue.remove(subscriber);
+        if (queue.size() == 0) {
+          subscribers.remove(type);
+        }
+      }
     }
   }
 }

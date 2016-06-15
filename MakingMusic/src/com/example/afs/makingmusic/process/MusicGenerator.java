@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -24,12 +25,14 @@ import org.opencv.core.Scalar;
 
 import com.example.afs.fluidsynth.Synthesizer;
 import com.example.afs.makingmusic.common.Injector;
+import com.example.afs.makingmusic.common.MessageReceiver.MonitorStyle;
 import com.example.afs.makingmusic.common.MulDiv;
 import com.example.afs.makingmusic.common.PropertyChange;
+import com.example.afs.makingmusic.common.StateRequest;
 import com.example.afs.makingmusic.common.Step;
 import com.example.afs.makingmusic.constants.Durations;
-import com.example.afs.makingmusic.constants.Properties;
-import com.example.afs.makingmusic.constants.Properties.AssignmentMethod;
+import com.example.afs.makingmusic.constants.Property;
+import com.example.afs.makingmusic.constants.Property.AssignmentMethod;
 import com.example.afs.makingmusic.sound.Instrument;
 import com.example.afs.makingmusic.sound.Sound;
 
@@ -90,10 +93,11 @@ public class MusicGenerator extends Step<Frame> {
   public MusicGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
     activeSounds = new HashSet<>();
-    instrumentNames = new HashSet<>();
+    instrumentNames = new ConcurrentHashSet<>();
     synthesizer = new Synthesizer();
     channelAssignments = new ChannelAssignments(synthesizer);
-    setMonitorPropertyChanges(true);
+    monitorPropertyChange(MonitorStyle.SYNC);
+    monitorStateRequest(MonitorStyle.ASYNC);
   }
 
   @Override
@@ -116,6 +120,8 @@ public class MusicGenerator extends Step<Frame> {
         Instrument instrument = channelAssignments.getInstrument(index);
         int channel = channelAssignments.getChannel(index);
         Sound sound = MulDiv.scale(width, item.x, instrument.getSounds());
+        MusicAnnotation musicAnnotation = new MusicAnnotation(instrument, sound);
+        frame.addMusicAnnotation(musicAnnotation);
         int value = sound.getValue();
         ActiveSound activeSound = new ActiveSound(channel, value, tick + Durations.NOTE_DURATION);
         if (channel == DRUM_CHANNEL_INDEX || !activeSounds.contains(activeSound)) {
@@ -132,22 +138,31 @@ public class MusicGenerator extends Step<Frame> {
   @Override
   protected void doPropertyChange(PropertyChange propertyChange) {
     switch (propertyChange.getName()) {
-    case Properties.ASSIGNMENT_METHOD:
+    case Property.Names.ASSIGNMENT_METHOD:
       assignmentMethod = AssignmentMethod.valueOf(propertyChange.getValue().toUpperCase());
       break;
-    case Properties.MAXIMUM_CONCURRENT_NOTES:
+    case Property.Names.MAXIMUM_CONCURRENT_NOTES:
       maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
       break;
-    case Properties.RESET:
-      assignmentMethod = null;
+    case Property.Names.RESET:
       instrumentNames.clear();
+      initializeProperties();
       break;
     default:
-      if (propertyChange.getName().startsWith(Properties.INSTRUMENT_PREFIX)) {
+      if (propertyChange.getName().startsWith(Property.Names.INSTRUMENT_PREFIX)) {
         updateActiveInstruments(propertyChange);
       }
       break;
     }
+  }
+
+  @Override
+  protected void onStateRequest(StateRequest stateRequest) {
+    for (String name : instrumentNames) {
+      stateRequest.addProperty(Property.Names.INSTRUMENT_PREFIX + name, Boolean.TRUE.toString());
+    }
+    stateRequest.addProperty(Property.Names.MAXIMUM_CONCURRENT_NOTES, Integer.toString(maximumConcurrentNotes));
+    stateRequest.addProperty(Property.Names.ASSIGNMENT_METHOD, assignmentMethod.name().toLowerCase());
   }
 
   private int getInstrumentIndex(Frame frame, Rect item) {
@@ -161,23 +176,32 @@ public class MusicGenerator extends Step<Frame> {
       float[] hsb = new float[3];
       Color.RGBtoHSB((int) mean.val[2], (int) mean.val[1], (int) mean.val[0], hsb);
       int hue = (int) (hsb[0] * 360);
-      // Red hues are split across 0-30 and 330-360 so rotate by 30 to group together
+      // Red hues are 0-30 and 330-360 so rotate by 30 to group together
       if (hue > 330) {
         hue = hue - 330;
       } else {
         hue += 30;
       }
-      // RGBtoHSB hsb[0] is 0-1 inclusive, resulting in a total of 361 hue values
+      // RGBtoHSB hsb[0] is 0-1 inclusive for a total of 361 hue values
       index = MulDiv.scale(361, hue, channelAssignments.size());
-      //System.out.println("hsb[0]=" + hsb[0] + ", hsb[0]*360=" + hsb[0] * 360 + ", hue=" + hue + ", index=" + index);
     }
     return index;
   }
 
+  private void initializeProperties() {
+    assignmentMethod = Property.Defaults.ASSIGNMENT_METHOD;
+    maximumConcurrentNotes = Property.Defaults.MAXIMUM_CONCURRENT_NOTES;
+    updateActiveInstruments(Property.Defaults.INSTRUMENT, true);
+  }
+
   private void updateActiveInstruments(PropertyChange propertyChange) {
-    String name = propertyChange.getName().substring(Properties.INSTRUMENT_PREFIX.length());
+    String name = propertyChange.getName().substring(Property.Names.INSTRUMENT_PREFIX.length());
+    boolean isActive = Boolean.parseBoolean(propertyChange.getValue());
+    updateActiveInstruments(name, isActive);
+  }
+
+  private void updateActiveInstruments(String name, boolean isActive) {
     if (Injector.getInstruments().contains(name)) {
-      boolean isActive = Boolean.parseBoolean(propertyChange.getValue());
       if (isActive) {
         instrumentNames.add(name);
       } else {

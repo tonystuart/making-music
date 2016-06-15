@@ -11,17 +11,16 @@ package com.example.afs.makingmusic.common;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
 
-import com.example.afs.makingmusic.common.MessageBroker.Subscriber;
+import com.example.afs.makingmusic.common.MessageBroker.Message;
+import com.example.afs.makingmusic.common.MessageReceiver.MonitorStyle;
 
 public class Step<T> extends Thread {
 
   private BlockingQueue<T> inputQueue;
   private BlockingQueue<T> outputQueue;
-  private AtomicReference<ConcurrentLinkedQueue<PropertyChange>> propertyChangeQueue = new AtomicReference<ConcurrentLinkedQueue<PropertyChange>>();
-  private Subscriber<PropertyChange> propertyChangeSubscriber;
+  private MessageReceiver<PropertyChange> propertyChangeReceiver;
+  private MessageReceiver<StateRequest> stateRequestReceiver;
   private boolean terminated;
   private TimeKeeper timeKeeper;
 
@@ -33,6 +32,18 @@ public class Step<T> extends Thread {
     this.inputQueue = inputQueue;
     setName(getClass().getSimpleName());
     timeKeeper = new TimeKeeper(getName());
+    propertyChangeReceiver = new MessageReceiver<PropertyChange>(PropertyChange.class) {
+      @Override
+      public void doMessage(PropertyChange message) {
+        doPropertyChange(message);
+      }
+    };
+    stateRequestReceiver = new MessageReceiver<StateRequest>(StateRequest.class) {
+      @Override
+      public void onMessage(StateRequest message) {
+        onStateRequest(message);
+      }
+    };
   }
 
   public BlockingQueue<T> getOutputQueue() {
@@ -40,6 +51,14 @@ public class Step<T> extends Thread {
       outputQueue = new ArrayBlockingQueue<>(1);
     }
     return outputQueue;
+  }
+
+  public void monitorPropertyChange(MonitorStyle monitorStyle) {
+    propertyChangeReceiver.setMonitorStyle(monitorStyle);
+  }
+
+  public void monitorStateRequest(MonitorStyle monitorStyle) {
+    stateRequestReceiver.setMonitorStyle(monitorStyle);
   }
 
   public T process() throws InterruptedException {
@@ -58,33 +77,20 @@ public class Step<T> extends Thread {
     cleanup();
   }
 
-  public void setMonitorPropertyChanges(boolean isMonitorPropertyChanges) {
-    if (isMonitorPropertyChanges) {
-      if (propertyChangeQueue.get() == null) {
-        propertyChangeSubscriber = new Subscriber<PropertyChange>() {
-          @Override
-          public void onMessage(PropertyChange message) {
-            onPropertyChange(message);
-          }
-        };
-        propertyChangeQueue.set(new ConcurrentLinkedQueue<PropertyChange>());
-        Injector.getMessageBroker().subscribe(PropertyChange.class, propertyChangeSubscriber);
-      }
-    } else {
-      if (propertyChangeQueue.get() != null) {
-        Injector.getMessageBroker().unsubscribe(PropertyChange.class, propertyChangeSubscriber);
-        propertyChangeQueue.set(null);
-        propertyChangeSubscriber = null;
-      }
-    }
-  }
-
   public void terminate() {
     terminated = true;
   }
 
   protected void cleanup() {
   }
+
+  /**
+   * Process a message on this thread (the one that invoked
+   * {@link #runMessages()}.
+   * 
+   * @param message
+   *          message to process
+   */
 
   protected void doPropertyChange(PropertyChange propertyChange) {
   }
@@ -93,13 +99,13 @@ public class Step<T> extends Thread {
   }
 
   /**
-   * Handle a property change message in a thread safe manner.
+   * Process a message on another thread (the one that invoked
+   * {@link MessageBroker#publish(Message)}
    * 
    * @param message
-   *          property change to handle
+   *          message to process
    */
-  protected void onPropertyChange(PropertyChange message) {
-    propertyChangeQueue.get().add(message);
+  protected void onStateRequest(StateRequest stateRequest) {
   }
 
   protected void runBody() {
@@ -153,15 +159,7 @@ public class Step<T> extends Thread {
 
   protected void runPropertyChanges() {
     timeKeeper.beginProperty();
-    if (propertyChangeQueue.get() != null) {
-      while (propertyChangeQueue.get().size() > 0) {
-        try {
-          doPropertyChange(propertyChangeQueue.get().remove());
-        } catch (RuntimeException e) {
-          // ignore invalid property change
-        }
-      }
-    }
+    propertyChangeReceiver.runMessages();
     timeKeeper.endProperty();
   }
 

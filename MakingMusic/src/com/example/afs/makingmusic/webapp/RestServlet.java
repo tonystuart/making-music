@@ -10,6 +10,7 @@
 package com.example.afs.makingmusic.webapp;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.example.afs.makingmusic.common.Injector;
 import com.example.afs.makingmusic.common.PropertyChange;
+import com.example.afs.makingmusic.common.StateRequest;
 import com.example.afs.makingmusic.utilities.FileUtilities;
 
 public class RestServlet extends HttpServlet {
@@ -28,11 +30,11 @@ public class RestServlet extends HttpServlet {
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     if (matchers.isMatch("^/instruments$", request.getPathInfo())) {
-      FileUtilities.writeJson(response, Injector.getPropertyCache());
+      writeProperties(response);
     } else if (matchers.isMatch("^/metrics$", request.getPathInfo())) {
       FileUtilities.writeJson(response, Injector.getMetrics());
     } else if (matchers.isMatch("^/settings$", request.getPathInfo())) {
-      FileUtilities.writeJson(response, Injector.getPropertyCache());
+      writeProperties(response);
     }
   }
 
@@ -44,5 +46,11 @@ public class RestServlet extends HttpServlet {
       String value = matches[1];
       Injector.getMessageBroker().publish(new PropertyChange(name, value));
     }
+  }
+
+  private void writeProperties(HttpServletResponse response) {
+    StateRequest stateRequest = new StateRequest(new ConcurrentHashMap<String, String>());
+    Injector.getMessageBroker().publish(stateRequest);
+    FileUtilities.writeJson(response, stateRequest);
   }
 }

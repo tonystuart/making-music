@@ -20,6 +20,7 @@ public class Frame {
   private BufferedImage bufferedImage;
   private Mat imageMatrix;
   private List<Rect> items = new LinkedList<>();
+  private List<MusicAnnotation> musicAnnotations = new LinkedList<>();
 
   public Frame(Mat image) {
     this.imageMatrix = image;
@@ -27,6 +28,10 @@ public class Frame {
 
   public void addItem(Rect item) {
     items.add(item);
+  }
+
+  public void addMusicAnnotation(MusicAnnotation musicAnnotation) {
+    musicAnnotations.add(musicAnnotation);
   }
 
   public BufferedImage getBufferedImage() {
@@ -39,6 +44,10 @@ public class Frame {
 
   public Iterable<Rect> getItems() {
     return items;
+  }
+
+  public List<MusicAnnotation> getMusicAnnotations() {
+    return musicAnnotations;
   }
 
   public void setBufferedImage(BufferedImage bufferedImage) {

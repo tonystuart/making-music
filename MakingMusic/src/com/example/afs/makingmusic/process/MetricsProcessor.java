@@ -13,11 +13,12 @@ import java.util.LinkedList;
 
 import com.example.afs.makingmusic.common.History;
 import com.example.afs.makingmusic.common.Injector;
+import com.example.afs.makingmusic.common.MessageReceiver.MonitorStyle;
 import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.ScheduledStep;
 import com.example.afs.makingmusic.constants.FileNames;
 import com.example.afs.makingmusic.constants.Limits;
-import com.example.afs.makingmusic.constants.Properties;
+import com.example.afs.makingmusic.constants.Property;
 import com.example.afs.makingmusic.utilities.FileUtilities;
 import com.example.afs.makingmusic.utilities.TimeUtilities;
 
@@ -32,7 +33,7 @@ public class MetricsProcessor extends ScheduledStep<Void> {
     super(intervalMillis);
     startTimeMillis = System.currentTimeMillis();
     restoreMetrics();
-    setMonitorPropertyChanges(true);
+    monitorPropertyChange(MonitorStyle.SYNC);
   }
 
   @Override
@@ -48,9 +49,9 @@ public class MetricsProcessor extends ScheduledStep<Void> {
 
   @Override
   protected void doPropertyChange(PropertyChange propertyChange) {
-    if (propertyChange.getName().startsWith(Properties.INSTRUMENT_PREFIX)) {
+    if (propertyChange.getName().startsWith(Property.Names.INSTRUMENT_PREFIX)) {
       Injector.getMetrics().setInstruments(++instruments);
-    } else if (!propertyChange.getName().equals(Properties.RESET)) {
+    } else if (!propertyChange.getName().equals(Property.Names.RESET)) {
       Injector.getMetrics().setProperties(++properties);
     }
   }
