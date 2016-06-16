@@ -33,7 +33,7 @@ public class MetricsProcessor extends ScheduledStep<Void> {
     super(intervalMillis);
     startTimeMillis = System.currentTimeMillis();
     restoreMetrics();
-    monitorPropertyChange(MonitorStyle.SYNC);
+    monitorPropertyChange(MonitorStyle.ASYNC);
   }
 
   @Override
@@ -48,7 +48,7 @@ public class MetricsProcessor extends ScheduledStep<Void> {
   }
 
   @Override
-  protected void doPropertyChange(PropertyChange propertyChange) {
+  protected void onAsynchronousPropertyChange(PropertyChange propertyChange) {
     if (propertyChange.getName().startsWith(Property.Names.INSTRUMENT_PREFIX)) {
       Injector.getMetrics().setInstruments(++instruments);
     } else if (!propertyChange.getName().equals(Property.Names.RESET)) {

@@ -36,7 +36,7 @@ public class MessageReceiver<T extends Message> {
   public void runMessages() {
     if (messageQueue.get() != null) {
       while (messageQueue.get().size() > 0) {
-        doMessage(messageQueue.get().remove());
+        onSynchronousMessage(messageQueue.get().remove());
       }
     }
   }
@@ -69,23 +69,30 @@ public class MessageReceiver<T extends Message> {
   }
 
   /**
-   * Process a message on this thread (the one that invoked
-   * {@link #runMessages()}.
+   * Process an asynchronous ({@link MonitorStyle#ASYNC}) message on another
+   * thread (the one that invoked {@link MessageBroker#publish(Message)}) at the
+   * point the message is published. Note that the JLS says that assignment to
+   * variables of any type except long or double is atomic:
+   * http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.7
    * 
    * @param message
    *          message to process
    */
-  protected void doMessage(T message) {
+  protected void onAsynchronousMessage(T message) {
   }
 
   /**
-   * Process a message on another thread (the one that invoked
-   * {@link MessageBroker#publish(Message)}
+   * Process a synchronous ({@link MonitorStyle#SYNC}) message on this thread
+   * (the one that invoked {@link MessageBroker#runMessages()} at some point
+   * after the message is published. Note that the JLS says that assignment to
+   * variables of any type except long or double is atomic:
+   * http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.7
+   * 
    * 
    * @param message
    *          message to process
    */
-  protected void onMessage(T message) {
+  protected void onSynchronousMessage(T message) {
     if (messageQueue.get() != null) {
       messageQueue.get().add(message);
     }
@@ -95,7 +102,7 @@ public class MessageReceiver<T extends Message> {
     messageSubscriber = new Subscriber<T>() {
       @Override
       public void onMessage(T message) {
-        MessageReceiver.this.onMessage(message);
+        MessageReceiver.this.onAsynchronousMessage(message);
       }
     };
     Injector.getMessageBroker().subscribe(messageClass, messageSubscriber);

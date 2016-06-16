@@ -34,14 +34,26 @@ public class Step<T> extends Thread {
     timeKeeper = new TimeKeeper(getName());
     propertyChangeReceiver = new MessageReceiver<PropertyChange>(PropertyChange.class) {
       @Override
-      public void doMessage(PropertyChange message) {
-        doPropertyChange(message);
+      protected void onAsynchronousMessage(PropertyChange message) {
+        onAsynchronousMessage(message);
+        onAsynchronousPropertyChange(message);
+      }
+
+      @Override
+      protected void onSynchronousMessage(PropertyChange message) {
+        onSynchronousPropertyChange(message);
       }
     };
     stateRequestReceiver = new MessageReceiver<StateRequest>(StateRequest.class) {
       @Override
-      public void onMessage(StateRequest message) {
-        onStateRequest(message);
+      protected void onAsynchronousMessage(StateRequest message) {
+        onAsynchronousMessage(message);
+        onAsynchronousStateRequest(message);
+      }
+
+      @Override
+      protected void onSynchronousMessage(StateRequest message) {
+        onSynchronousStateRequest(message);
       }
     };
   }
@@ -84,28 +96,55 @@ public class Step<T> extends Thread {
   protected void cleanup() {
   }
 
-  /**
-   * Process a message on this thread (the one that invoked
-   * {@link #runMessages()}.
-   * 
-   * @param message
-   *          message to process
-   */
-
-  protected void doPropertyChange(PropertyChange propertyChange) {
-  }
-
   protected void initialize() {
   }
 
   /**
-   * Process a message on another thread (the one that invoked
-   * {@link MessageBroker#publish(Message)}
+   * Process an asynchronous ({@link MonitorStyle#ASYNC}) PropertyChange on
+   * another thread (the one that invoked {@link MessageBroker#publish(Message)}
+   * ) at the point the message is published. Note that the JLS says that
+   * assignment to variables of any type exept long or double is atomic:
+   * http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.7
    * 
    * @param message
    *          message to process
    */
-  protected void onStateRequest(StateRequest stateRequest) {
+  protected void onAsynchronousPropertyChange(PropertyChange propertyChange) {
+  }
+
+  /**
+   * Process an asynchronous ({@link MonitorStyle#ASYNC}) StateRequest on
+   * another thread (the one that invoked {@link MessageBroker#publish(Message)}
+   * ) at the point the message is published. Note that the JLS says that
+   * assignment to variables of any type exept long or double is atomic:
+   * http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.7
+   * 
+   * @param message
+   *          message to process
+   */
+  protected void onAsynchronousStateRequest(StateRequest message) {
+  }
+
+  /**
+   * Process a synchronous ({@link MonitorStyle#SYNC}) PropertyChange on this
+   * thread (the one that invoked {@link MessageBroker#runMessages()} at some
+   * point after the message is publishede.
+   * 
+   * @param message
+   *          message to process
+   */
+  protected void onSynchronousPropertyChange(PropertyChange message) {
+  }
+
+  /**
+   * Process a synchronous ({@link MonitorStyle#SYNC}) StateRequest on this
+   * thread (the one that invoked {@link MessageBroker#runMessages()} at some
+   * point after the message is publishede.
+   * 
+   * @param message
+   *          message to process
+   */
+  protected void onSynchronousStateRequest(StateRequest stateRequest) {
   }
 
   protected void runBody() {

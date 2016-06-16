@@ -10,7 +10,7 @@
 package com.example.afs.makingmusic.process;
 
 import com.example.afs.makingmusic.common.Injector;
-import com.example.afs.makingmusic.common.MessageBroker.Subscriber;
+import com.example.afs.makingmusic.common.MessageReceiver.MonitorStyle;
 import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.ScheduledStep;
 import com.example.afs.makingmusic.constants.Property;
@@ -19,20 +19,20 @@ public class ResetMessagePublisher extends ScheduledStep<Void> {
 
   public ResetMessagePublisher(long intervalMillis) {
     super(intervalMillis);
-    Injector.getMessageBroker().subscribe(PropertyChange.class, new Subscriber<PropertyChange>() {
-      @Override
-      public void onMessage(PropertyChange message) {
-        if (!message.getName().equals(Property.Names.RESET)) {
-          resetTimer();
-        }
-      }
-    });
+    monitorPropertyChange(MonitorStyle.ASYNC);
   }
 
   @Override
   public Void process() throws InterruptedException {
     Injector.getMessageBroker().publish(new PropertyChange(Property.Names.RESET, null));
     return null;
+  }
+
+  @Override
+  protected void onAsynchronousPropertyChange(PropertyChange propertyChange) {
+    if (!propertyChange.getName().equals(Property.Names.RESET)) {
+      resetTimer();
+    }
   }
 
 }

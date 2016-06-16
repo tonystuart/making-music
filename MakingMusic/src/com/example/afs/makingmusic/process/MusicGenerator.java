@@ -136,7 +136,16 @@ public class MusicGenerator extends Step<Frame> {
   }
 
   @Override
-  protected void doPropertyChange(PropertyChange propertyChange) {
+  protected void onAsynchronousStateRequest(StateRequest stateRequest) {
+    for (String name : instrumentNames) {
+      stateRequest.addProperty(Property.Names.INSTRUMENT_PREFIX + name, Boolean.TRUE.toString());
+    }
+    stateRequest.addProperty(Property.Names.MAXIMUM_CONCURRENT_NOTES, Integer.toString(maximumConcurrentNotes));
+    stateRequest.addProperty(Property.Names.ASSIGNMENT_METHOD, assignmentMethod.name().toLowerCase());
+  }
+
+  @Override
+  protected void onSynchronousPropertyChange(PropertyChange propertyChange) {
     switch (propertyChange.getName()) {
     case Property.Names.ASSIGNMENT_METHOD:
       assignmentMethod = AssignmentMethod.valueOf(propertyChange.getValue().toUpperCase());
@@ -154,15 +163,6 @@ public class MusicGenerator extends Step<Frame> {
       }
       break;
     }
-  }
-
-  @Override
-  protected void onStateRequest(StateRequest stateRequest) {
-    for (String name : instrumentNames) {
-      stateRequest.addProperty(Property.Names.INSTRUMENT_PREFIX + name, Boolean.TRUE.toString());
-    }
-    stateRequest.addProperty(Property.Names.MAXIMUM_CONCURRENT_NOTES, Integer.toString(maximumConcurrentNotes));
-    stateRequest.addProperty(Property.Names.ASSIGNMENT_METHOD, assignmentMethod.name().toLowerCase());
   }
 
   private int getInstrumentIndex(Frame frame, Rect item) {
