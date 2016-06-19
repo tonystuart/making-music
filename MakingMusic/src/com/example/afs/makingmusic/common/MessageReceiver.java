@@ -79,6 +79,9 @@ public class MessageReceiver<T extends Message> {
    *          message to process
    */
   protected void onAsynchronousMessage(T message) {
+    if (messageQueue.get() != null) {
+      messageQueue.get().add(message);
+    }
   }
 
   /**
@@ -93,9 +96,6 @@ public class MessageReceiver<T extends Message> {
    *          message to process
    */
   protected void onSynchronousMessage(T message) {
-    if (messageQueue.get() != null) {
-      messageQueue.get().add(message);
-    }
   }
 
   private void initializeMessageSubscriber() {

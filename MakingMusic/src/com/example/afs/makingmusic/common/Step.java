@@ -35,7 +35,7 @@ public class Step<T> extends Thread {
     propertyChangeReceiver = new MessageReceiver<PropertyChange>(PropertyChange.class) {
       @Override
       protected void onAsynchronousMessage(PropertyChange message) {
-        onAsynchronousMessage(message);
+        super.onAsynchronousMessage(message);
         onAsynchronousPropertyChange(message);
       }
 
@@ -47,7 +47,7 @@ public class Step<T> extends Thread {
     stateRequestReceiver = new MessageReceiver<StateRequest>(StateRequest.class) {
       @Override
       protected void onAsynchronousMessage(StateRequest message) {
-        onAsynchronousMessage(message);
+        super.onAsynchronousMessage(message);
         onAsynchronousStateRequest(message);
       }
 
