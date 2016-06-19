@@ -20,7 +20,7 @@ public class Property {
   public static class Defaults {
     public static final AssignmentMethod ASSIGNMENT_METHOD = AssignmentMethod.POSITION;
     public static final String INSTRUMENT = Injector.getInstruments().getDefaultInstrumentName();
-    public static final int MAXIMUM_CONCURRENT_NOTES = 10;
+    public static final int MAXIMUM_CONCURRENT_NOTES = 20;
   }
 
   public static class Names {

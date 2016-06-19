@@ -17,7 +17,7 @@ public class Durations {
 
   public static final long FRAME_INTERVAL = TimeUnit.SECONDS.toMillis(1) / 8;
   public static final long METRICS_INTERVAL = TimeUnit.MINUTES.toMillis(1);
-  public static final long NOTE_DURATION = TimeUnit.SECONDS.toMillis(1);
+  public static final long NOTE_DURATION = TimeUnit.SECONDS.toMillis(1) / 8;
   public static final long RESET_INTERVAL = TimeUnit.MINUTES.toMillis(5);
 
 }

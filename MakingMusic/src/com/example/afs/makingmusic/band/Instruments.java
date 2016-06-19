@@ -185,7 +185,7 @@ public class Instruments {
   }
 
   private void add(String name, int programNumber) {
-    map.put(name, new Instrument(name, 0, programNumber, 127, Keys.CMajorFull.getSounds()));
+    map.put(name, new Instrument(name, 0, programNumber, 127, Keys.CMajorMiddle.getSounds()));
   }
 
 }
