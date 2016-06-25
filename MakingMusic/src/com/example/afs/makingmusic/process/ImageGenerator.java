@@ -12,7 +12,6 @@ package com.example.afs.makingmusic.process;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
-import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 
 import org.opencv.core.Mat;
@@ -21,11 +20,16 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import com.example.afs.makingmusic.common.Step;
+import com.example.afs.makingmusic.process.MusicAnnotation.Type;
 
 public class ImageGenerator extends Step<Frame> {
 
-  private static final Scalar GREEN = new Scalar(0, 255, 0);
-  private static final Scalar RED = new Scalar(0, 0, 255);
+  public static final Scalar BLUE = new Scalar(255, 0, 0);
+  public static final Scalar CYAN = new Scalar(255, 255, 0);
+  public static final Scalar GREEN = new Scalar(0, 255, 0);
+  public static final Scalar MAGENTA = new Scalar(255, 0, 255);
+  public static final Scalar RED = new Scalar(0, 0, 255);
+  public static final Scalar YELLOW = new Scalar(0, 255, 255);
 
   public ImageGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
@@ -34,13 +38,24 @@ public class ImageGenerator extends Step<Frame> {
   @Override
   public void process(Frame frame) {
     Mat image = frame.getImageMatrix();
-    Iterator<MusicAnnotation> annotationIterator = frame.getMusicAnnotations().iterator();
-    for (Rect item : frame.getItems()) {
-      if (annotationIterator.hasNext()) {
-        annotationIterator.next();
+    for (MusicAnnotation musicAnnotation : frame.getMusicAnnotations()) {
+      Rect item = musicAnnotation.getItem();
+      Type type = musicAnnotation.getType();
+      switch (type) {
+      case NEW:
         Imgproc.rectangle(image, item.br(), item.tl(), GREEN, 1);
-      } else {
+        break;
+      case OLD:
+        Imgproc.rectangle(image, item.br(), item.tl(), BLUE, 1);
+        break;
+      case DUPLICATE:
+        Imgproc.rectangle(image, item.br(), item.tl(), YELLOW, 1);
+        break;
+      case OVERFLOW:
         Imgproc.rectangle(image, item.br(), item.tl(), RED, 1);
+        break;
+      default:
+        throw new UnsupportedOperationException();
       }
     }
     BufferedImage bufferedImage = toBufferedImage(image);

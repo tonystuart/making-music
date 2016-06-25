@@ -9,28 +9,47 @@
 
 package com.example.afs.makingmusic.process;
 
+import org.opencv.core.Rect;
+
 import com.example.afs.makingmusic.sound.Instrument;
 import com.example.afs.makingmusic.sound.Sound;
 
 public class MusicAnnotation {
-  private Instrument instrument;
-  private Sound sound;
 
-  public MusicAnnotation(Instrument instrument, Sound sound) {
+  public enum Type {
+    DUPLICATE, NEW, OLD, OVERFLOW
+  }
+
+  private Instrument instrument;
+  private Rect item;
+  private Sound sound;
+  private Type type;
+
+  public MusicAnnotation(Rect item, Instrument instrument, Sound sound, Type type) {
+    this.item = item;
     this.instrument = instrument;
     this.sound = sound;
+    this.type = type;
   }
 
   public Instrument getInstrument() {
     return instrument;
   }
 
+  public Rect getItem() {
+    return item;
+  }
+
   public Sound getSound() {
     return sound;
   }
 
+  public Type getType() {
+    return type;
+  }
+
   @Override
   public String toString() {
-    return "MusicAnnotation [instrument=" + instrument + ", sound=" + sound + "]";
+    return "MusicAnnotation [instrument=" + instrument + ", sound=" + sound + ", type=" + type + "]";
   }
 }
