@@ -17,7 +17,7 @@ import com.example.afs.makingmusic.sound.Sound;
 public class MusicAnnotation {
 
   public enum Type {
-    DUPLICATE, NEW, OLD, OVERFLOW
+    ACTIVE, DUPLICATE, NEW, OVERFLOW
   }
 
   private Instrument instrument;

@@ -9,26 +9,30 @@
 
 package com.example.afs.makingmusic.sound;
 
+import java.util.Arrays;
+
 public class Instrument {
 
-  private boolean isDrumKit;
+  // See https://en.wikipedia.org/wiki/Hornbostel%E2%80%93Sachs
+  public enum Type {
+    DRUM, KEYBOARD, STRING, WIND
+  }
+
   private String name;
   private int programIndex;
   private Sound[] sounds;
-  private int velocity;
+  private Type type;
 
-  public Instrument(String name, int channel, int programNumber, int velocity, Drum... drums) {
+  public Instrument(String name, Drum... drums) {
+    this.type = Type.DRUM;
     this.name = name;
-    this.programIndex = programNumber - 1;
-    this.velocity = velocity;
     this.sounds = drums;
-    this.isDrumKit = true;
   }
 
-  public Instrument(String name, int channel, int programNumber, int velocity, Sound... sounds) {
+  public Instrument(Type type, String name, int programNumber, Sound... sounds) {
+    this.type = type;
     this.name = name;
     this.programIndex = programNumber - 1;
-    this.velocity = velocity;
     this.sounds = sounds;
   }
 
@@ -44,17 +48,13 @@ public class Instrument {
     return sounds;
   }
 
-  public int getVelocity() {
-    return velocity;
-  }
-
-  public boolean isDrumKit() {
-    return isDrumKit;
+  public Type getType() {
+    return type;
   }
 
   @Override
   public String toString() {
-    return "Instrument [name=" + name + ", programIndex=" + programIndex + ", velocity=" + velocity + ", isDrums=" + isDrumKit + "]";
+    return "Instrument [type=" + type + ", name=" + name + ", programIndex=" + programIndex + ", sounds=" + Arrays.toString(sounds) + "]";
   }
 
 }

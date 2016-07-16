@@ -9,15 +9,15 @@
 
 package com.example.afs.makingmusic.process;
 
+import com.example.afs.makingmusic.sound.Sound;
+
 public class ActiveSound {
 
-  private int channel;
   private long offTime;
-  private int value;
+  private Sound sound;
 
-  public ActiveSound(int channel, int value, long offTime) {
-    this.channel = channel;
-    this.value = value;
+  public ActiveSound(Sound value, long offTime) {
+    this.sound = value;
     this.offTime = offTime;
   }
 
@@ -33,34 +33,35 @@ public class ActiveSound {
       return false;
     }
     ActiveSound other = (ActiveSound) obj;
-    if (channel != other.channel) {
-      return false;
-    }
-    if (value != other.value) {
+    if (sound == null) {
+      if (other.sound != null) {
+        return false;
+      }
+    } else if (!sound.equals(other.sound)) {
       return false;
     }
     return true;
-  }
-
-  public int getChannel() {
-    return channel;
   }
 
   public long getOffTime() {
     return offTime;
   }
 
-  public int getValue() {
-    return value;
+  public Sound getSound() {
+    return sound;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + channel;
-    result = prime * result + value;
+    result = prime * result + ((sound == null) ? 0 : sound.hashCode());
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "ActiveSound [value=" + sound + ", offTime=" + offTime + "]";
   }
 
 }

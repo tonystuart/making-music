@@ -19,6 +19,7 @@ public class ResetMessagePublisher extends ScheduledStep<Void> {
 
   public ResetMessagePublisher(long intervalMillis) {
     super(intervalMillis);
+    resetTimer();
     monitorPropertyChange(MonitorStyle.ASYNC);
   }
 

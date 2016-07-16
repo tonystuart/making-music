@@ -9,6 +9,8 @@
 
 package com.example.afs.fluidsynth;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Synthesizer {
 
   public static class Settings {
@@ -39,7 +41,10 @@ public class Synthesizer {
     return settings;
   }
 
+  private AtomicInteger activeNoteCount = new AtomicInteger();
+  private int maximumConcurrentNotes;
   private long synth;
+  private AtomicInteger totalNoteCount = new AtomicInteger();
 
   public Synthesizer() {
     this(createDefaultSettings());
@@ -51,15 +56,58 @@ public class Synthesizer {
     FluidSynth.fluidSynthSfload(synth, "/usr/share/sounds/sf2/FluidR3_GM.sf2", 1);
   }
 
+  /**
+   * Modifies the pitch on the channel.
+   * 
+   * @param channel
+   *          channel whose pitch is to be modified
+   * @param val
+   *          adjustment to pitch in four semitone range (0-16383 with 8192
+   *          being center)
+   */
+  public void bendPitch(int channel, int val) {
+    FluidSynth.fluidSynthPitchBend(synth, channel, val);
+  }
+
   public void changeProgram(int channel, int program) {
     FluidSynth.fluidSynthProgramChange(synth, channel, program);
   }
 
+  public int getActiveNoteCount() {
+    return activeNoteCount.get();
+  }
+
+  public int getMaximumConcurrentNotes() {
+    return maximumConcurrentNotes;
+  }
+
+  public int getTotalNoteCount() {
+    return totalNoteCount.get();
+  }
+
   public void pressKey(int channel, int key, int velocity) {
-    FluidSynth.fluidSynthNoteon(synth, channel, key, velocity);
+    totalNoteCount.incrementAndGet();
+    if (activeNoteCount.incrementAndGet() <= maximumConcurrentNotes) {
+      FluidSynth.fluidSynthNoteon(synth, channel, key, velocity);
+    }
   }
 
   public void releaseKey(int channel, int key) {
+    activeNoteCount.decrementAndGet();
     FluidSynth.fluidSynthNoteoff(synth, channel, key);
+  }
+
+  /**
+   * Modifies the gain for the synthesizer.
+   * 
+   * @param gain
+   *          value in the range 0.0 to 10.0
+   */
+  public void setGain(float gain) {
+    FluidSynth.fluidSynthSetGain(synth, gain);
+  }
+
+  public void setMaximumConcurrentNotes(int maximumConcurrentNotes) {
+    this.maximumConcurrentNotes = maximumConcurrentNotes;
   }
 }

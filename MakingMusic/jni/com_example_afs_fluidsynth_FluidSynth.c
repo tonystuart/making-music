@@ -36,9 +36,19 @@ JNIEXPORT jint JNICALL Java_com_example_afs_fluidsynth_FluidSynth_fluidSynthNote
   	return fluid_synth_noteon(synth, chan, key, vel);
 }
 
+JNIEXPORT jint JNICALL Java_com_example_afs_fluidsynth_FluidSynth_fluidSynthPitchBend
+  (JNIEnv *env, jclass this, jlong synth, jint chan, jint val) {
+    return fluid_synth_pitch_bend(synth, chan, val);
+}
+
 JNIEXPORT jint JNICALL Java_com_example_afs_fluidsynth_FluidSynth_fluidSynthProgramChange
   (JNIEnv *env, jclass this, jlong synth, jint chan, jint program) {
-  	return fluid_synth_program_change(synth, chan, program);
+    return fluid_synth_program_change(synth, chan, program);
+}
+
+JNIEXPORT jint JNICALL Java_com_example_afs_fluidsynth_FluidSynth_fluidSynthSetGain
+  (JNIEnv *env, jclass this, jlong synth, jfloat gain) {
+    fluid_synth_set_gain(synth, gain);
 }
 
 JNIEXPORT jlong JNICALL Java_com_example_afs_fluidsynth_FluidSynth_fluidSynthSfload

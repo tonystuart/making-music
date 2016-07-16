@@ -45,7 +45,7 @@ public class ImageGenerator extends Step<Frame> {
       case NEW:
         Imgproc.rectangle(image, item.br(), item.tl(), GREEN, 1);
         break;
-      case OLD:
+      case ACTIVE:
         Imgproc.rectangle(image, item.br(), item.tl(), BLUE, 1);
         break;
       case DUPLICATE:

@@ -27,7 +27,11 @@ public class FluidSynth {
 
   public static native int fluidSynthNoteon(long synth, int chan, int key, int vel);
 
+  public static native int fluidSynthPitchBend(long synth, int chan, int val);
+
   public static native int fluidSynthProgramChange(long synth, int chan, int program);
+
+  public static native long fluidSynthSetGain(long synth, float gain);
 
   public static native long fluidSynthSfload(long synth, String filename, int resetPresets);
 

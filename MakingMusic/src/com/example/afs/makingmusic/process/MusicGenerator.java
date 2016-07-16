@@ -11,8 +11,12 @@ package com.example.afs.makingmusic.process;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
@@ -29,118 +33,37 @@ import com.example.afs.makingmusic.common.MulDiv;
 import com.example.afs.makingmusic.common.PropertyChange;
 import com.example.afs.makingmusic.common.StateRequest;
 import com.example.afs.makingmusic.common.Step;
-import com.example.afs.makingmusic.constants.Durations;
+import com.example.afs.makingmusic.constants.Midi;
 import com.example.afs.makingmusic.constants.Property;
 import com.example.afs.makingmusic.constants.Property.AssignmentMethod;
-import com.example.afs.makingmusic.process.MusicAnnotation.Type;
+import com.example.afs.makingmusic.player.DrumPlayer;
+import com.example.afs.makingmusic.player.KeyboardPlayer;
+import com.example.afs.makingmusic.player.Player;
+import com.example.afs.makingmusic.player.StringPlayer;
+import com.example.afs.makingmusic.player.WindPlayer;
 import com.example.afs.makingmusic.sound.Instrument;
-import com.example.afs.makingmusic.sound.Sound;
 
 public class MusicGenerator extends Step<Frame> {
 
-  public static final int DRUM_CHANNEL_INDEX = 9;
-
-  public class Player {
-
-    private Set<ActiveSound> activeSounds = new HashSet<>();
-    private int channel;
-    private Set<Sound> frameSounds = new HashSet<>();
-    private Instrument instrument;
-    private Set<Rect> items = new HashSet<>();
-
-    public Player(Instrument instrument, int channel) {
-      this.instrument = instrument;
-      this.channel = channel;
-      int programIndex = instrument.getProgramIndex();
-      if (channel != DRUM_CHANNEL_INDEX) {
-        synthesizer.changeProgram(channel, programIndex);
-      }
-    }
-
-    public void add(Frame frame, Rect item) {
-      items.add(item);
-    }
-
-    public void clear() {
-      for (ActiveSound activeSound : activeSounds) {
-        synthesizer.releaseKey(activeSound.getChannel(), activeSound.getValue());
-        activeSounds.remove(activeSound);
-      }
-    }
-
-    public void play(Frame frame, long tick) {
-      int width = frame.getImageMatrix().width();
-      for (Rect item : items) {
-        Sound sound = MulDiv.scale(width, item.x, instrument.getSounds());
-        if (!frameSounds.contains(sound)) {
-          frameSounds.add(sound);
-          ActiveSound activeSound = new ActiveSound(channel, sound.getValue(), tick + Durations.NOTE_DURATION);
-          if (channel == DRUM_CHANNEL_INDEX || !activeSounds.contains(activeSound)) {
-            if (activeSounds.size() < maximumConcurrentNotes) {
-              frame.addMusicAnnotation(new MusicAnnotation(item, instrument, sound, Type.NEW));
-              int value = sound.getValue();
-              synthesizer.pressKey(channel, value, instrument.getVelocity());
-              activeSounds.add(activeSound);
-              noteCount++;
-            } else {
-              frame.addMusicAnnotation(new MusicAnnotation(item, instrument, sound, Type.OVERFLOW));
-            }
-          } else {
-            frame.addMusicAnnotation(new MusicAnnotation(item, instrument, sound, Type.OLD));
-          }
-        } else {
-          frame.addMusicAnnotation(new MusicAnnotation(item, instrument, sound, Type.DUPLICATE));
-        }
-      }
-    }
-
-    public void prepare(Frame frame, long tick) {
-      releaseExpiredSounds(tick);
-      items.clear();
-      frameSounds.clear();
-    }
-
-    private void releaseExpiredSounds(long tick) {
-      List<ActiveSound> expiringSounds = new ArrayList<>(activeSounds.size());
-      for (ActiveSound activeSound : activeSounds) {
-        if (activeSound.getOffTime() < tick) {
-          synthesizer.releaseKey(activeSound.getChannel(), activeSound.getValue());
-          expiringSounds.add(activeSound);
-        }
-      }
-      activeSounds.removeAll(expiringSounds);
-    }
-
-  }
+  private static final List<Rect> EMPTY_LIST = Collections.emptyList();
 
   private AssignmentMethod assignmentMethod;
   private Set<String> instrumentNames = new ConcurrentHashSet<>();
-  private int maximumConcurrentNotes;
-  private int noteCount;
   private List<Player> players = new ArrayList<>();
   private Synthesizer synthesizer = new Synthesizer();
 
   public MusicGenerator(BlockingQueue<Frame> inputQueue) {
     super(inputQueue);
+    initializeProperties();
     monitorPropertyChange(MonitorStyle.SYNC);
     monitorStateRequest(MonitorStyle.ASYNC);
   }
 
   @Override
   public void process(Frame frame) {
-    long tick = System.currentTimeMillis();
     if (players.size() > 0) {
-      for (Player player : players) {
-        player.prepare(frame, tick);
-      }
-      for (Rect item : frame.getItems()) {
-        Player player = getPlayer(frame, item);
-        player.add(frame, item);
-      }
-      for (Player player : players) {
-        player.play(frame, tick);
-      }
-      Injector.getMetrics().setNotes(noteCount);
+      Map<Player, List<Rect>> playerItems = findPlayerItems(frame);
+      play(frame, playerItems);
     }
   }
 
@@ -149,7 +72,7 @@ public class MusicGenerator extends Step<Frame> {
     for (String name : instrumentNames) {
       stateRequest.addProperty(Property.Names.INSTRUMENT_PREFIX + name, Boolean.TRUE.toString());
     }
-    stateRequest.addProperty(Property.Names.MAXIMUM_CONCURRENT_NOTES, Integer.toString(maximumConcurrentNotes));
+    stateRequest.addProperty(Property.Names.MAXIMUM_CONCURRENT_NOTES, Integer.toString(synthesizer.getMaximumConcurrentNotes()));
     stateRequest.addProperty(Property.Names.ASSIGNMENT_METHOD, assignmentMethod.name().toLowerCase());
   }
 
@@ -160,7 +83,7 @@ public class MusicGenerator extends Step<Frame> {
       assignmentMethod = AssignmentMethod.valueOf(propertyChange.getValue().toUpperCase());
       break;
     case Property.Names.MAXIMUM_CONCURRENT_NOTES:
-      maximumConcurrentNotes = Integer.parseInt(propertyChange.getValue());
+      synthesizer.setMaximumConcurrentNotes(Integer.parseInt(propertyChange.getValue()));
       break;
     case Property.Names.RESET:
       instrumentNames.clear();
@@ -177,17 +100,13 @@ public class MusicGenerator extends Step<Frame> {
   private void assignPlayers(Instrument[] instruments) {
     int nextChannel = 0;
     for (int i = 0; i < instruments.length; i++) {
-      int channel;
-      Instrument instrument = instruments[i];
-      if (instruments[i].isDrumKit()) {
-        channel = DRUM_CHANNEL_INDEX;
-      } else {
-        channel = nextChannel++;
-        if (nextChannel == DRUM_CHANNEL_INDEX) {
-          nextChannel++;
-        }
+      int channel = nextChannel++;
+      if (nextChannel == Midi.DRUM_CHANNEL_INDEX) {
+        nextChannel++;
       }
-      players.add(new Player(instrument, channel));
+      Instrument instrument = instruments[i];
+      Player player = createPlayer(instrument, channel);
+      players.add(player);
     }
   }
 
@@ -198,7 +117,28 @@ public class MusicGenerator extends Step<Frame> {
     players.clear();
   }
 
-  private Player getPlayer(Frame frame, Rect item) {
+  private Player createPlayer(Instrument instrument, int channel) {
+    Player player;
+    switch (instrument.getType()) {
+    case DRUM:
+      player = new DrumPlayer(synthesizer, instrument);
+      break;
+    case KEYBOARD:
+      player = new KeyboardPlayer(synthesizer, instrument, channel);
+      break;
+    case STRING:
+      player = new StringPlayer(synthesizer, instrument, channel);
+      break;
+    case WIND:
+      player = new WindPlayer(synthesizer, instrument, channel);
+      break;
+    default:
+      throw new UnsupportedOperationException();
+    }
+    return player;
+  }
+
+  private Player findPlayer(Frame frame, Rect item) {
     int index;
     if (assignmentMethod == null || assignmentMethod == AssignmentMethod.POSITION) {
       int height = frame.getImageMatrix().height();
@@ -221,10 +161,37 @@ public class MusicGenerator extends Step<Frame> {
     return players.get(index);
   }
 
+  private Map<Player, List<Rect>> findPlayerItems(Frame frame) {
+    Map<Player, List<Rect>> playerItems = new HashMap<>();
+    for (Player player : players) {
+      playerItems.put(player, EMPTY_LIST);
+    }
+    for (Rect item : frame.getItems()) {
+      Player player = findPlayer(frame, item);
+      List<Rect> items = playerItems.get(player);
+      if (items == EMPTY_LIST) {
+        items = new LinkedList<>();
+        playerItems.put(player, items);
+      }
+      items.add(item);
+    }
+    return playerItems;
+  }
+
   private void initializeProperties() {
     assignmentMethod = Property.Defaults.ASSIGNMENT_METHOD;
-    maximumConcurrentNotes = Property.Defaults.MAXIMUM_CONCURRENT_NOTES;
+    synthesizer.setMaximumConcurrentNotes(Property.Defaults.MAXIMUM_CONCURRENT_NOTES);
     updateActiveInstruments(Property.Defaults.INSTRUMENT, true);
+  }
+
+  private void play(Frame frame, Map<Player, List<Rect>> playerItems) {
+    long tick = System.currentTimeMillis();
+    for (Entry<Player, List<Rect>> entry : playerItems.entrySet()) {
+      Player player = entry.getKey();
+      List<Rect> items = entry.getValue();
+      player.play(frame, items, tick);
+    }
+    Injector.getMetrics().setNotes(synthesizer.getTotalNoteCount());
   }
 
   private void updateActiveInstruments(PropertyChange propertyChange) {

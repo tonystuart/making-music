@@ -7,11 +7,15 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.makingmusic.constants;
+package com.example.afs.makingmusic.player;
 
-public class Limits {
+import com.example.afs.fluidsynth.Synthesizer;
+import com.example.afs.makingmusic.sound.Instrument;
 
-  public static final int HISTORY_SIZE = 200;
-  public static final int PROPERTY_SIZE = 100;
+public class KeyboardPlayer extends ProgramPlayer {
+
+  public KeyboardPlayer(Synthesizer synthesizer, Instrument instrument, int channel) {
+    super(synthesizer, instrument, channel);
+  }
 
 }
