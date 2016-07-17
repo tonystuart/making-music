@@ -13,7 +13,7 @@ import com.example.afs.fluidsynth.Synthesizer;
 import com.example.afs.makingmusic.constants.Midi;
 import com.example.afs.makingmusic.sound.Instrument;
 
-public class DrumPlayer extends Player {
+public class DrumPlayer extends PolyphonicPlayer {
 
   public DrumPlayer(Synthesizer synthesizer, Instrument instrument) {
     super(synthesizer, instrument, Midi.DRUM_CHANNEL_INDEX);

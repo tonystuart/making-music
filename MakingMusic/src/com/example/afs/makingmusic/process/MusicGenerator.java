@@ -112,7 +112,7 @@ public class MusicGenerator extends Step<Frame> {
 
   private void clearPlayers() {
     for (Player player : players) {
-      player.clear();
+      player.terminate();
     }
     players.clear();
   }

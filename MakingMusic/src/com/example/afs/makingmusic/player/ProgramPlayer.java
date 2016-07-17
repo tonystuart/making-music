@@ -12,7 +12,7 @@ package com.example.afs.makingmusic.player;
 import com.example.afs.fluidsynth.Synthesizer;
 import com.example.afs.makingmusic.sound.Instrument;
 
-public class ProgramPlayer extends Player {
+public class ProgramPlayer extends PolyphonicPlayer {
 
   public ProgramPlayer(Synthesizer synthesizer, Instrument instrument, int channel) {
     super(synthesizer, instrument, channel);
