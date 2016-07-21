@@ -49,12 +49,14 @@ public class WindPlayer implements Player {
             // something is playing, transition to next note
             int bend = CENTER;
             int increment = nextValue > currentValue ? 10 : -10;
-            for (int i = 0; i < 50; i++) {
-              System.out.println("counter=" + i + ", bend=" + bend + ", increment=" + increment + ", current=" + currentValue);
+            int thisValue = nextValue;
+            int i;
+            for (i = 0; i < 50 && (!isPreemptive || thisValue == nextValue); i++) {
               synthesizer.bendPitch(channel, bend);
               bend += increment;
-              pause(2);
+              pause(10);
             }
+            System.out.println("counter=" + i + ", bend=" + bend + ", increment=" + increment + ", thisValue=" + thisValue + ", current=" + currentValue);
             startNext();
           }
         }
@@ -84,6 +86,7 @@ public class WindPlayer implements Player {
   private int nextValue;
   private PitchBender pitchBender;
   private Synthesizer synthesizer;
+  private boolean isPreemptive = true;
 
   public WindPlayer(Synthesizer synthesizer, Instrument instrument, int channel) {
     this.synthesizer = synthesizer;
@@ -134,7 +137,7 @@ public class WindPlayer implements Player {
   }
 
   private long getDuration() {
-    return 3000;
+    return 1000;
   }
 
   private Sound getSound(Frame frame, Rect item) {

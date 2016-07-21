@@ -31,6 +31,7 @@ public abstract class PolyphonicPlayer implements Player {
   protected int channel;
   protected Instrument instrument;
   protected Synthesizer synthesizer;
+  private boolean isPreemptive = false;
 
   public PolyphonicPlayer(Synthesizer synthesizer, Instrument instrument, int channel) {
     this.synthesizer = synthesizer;
@@ -59,7 +60,7 @@ public abstract class PolyphonicPlayer implements Player {
 
   protected Sound getSound(Frame frame, Rect item) {
     int width = frame.getImageMatrix().width();
-    Sound sound = MulDiv.scale(width, item.x, instrument.getSounds());
+    Sound sound = MulDiv.scale(width, item.x + (item.width / 2), instrument.getSounds());
     return sound;
   }
 
@@ -67,10 +68,19 @@ public abstract class PolyphonicPlayer implements Player {
     return true; // default is unlimited polyphony
   }
 
+  protected boolean isPlaying(ActiveSound activeSound) {
+    boolean isPlaying = activeSounds.contains(activeSound);
+    if (isPlaying && isPreemptive) {
+      stopSound(activeSound);
+      isPlaying = false;
+    }
+    return isPlaying;
+  }
+
   protected void play(Set<Sound> frameSounds, Frame frame, Rect item, long tick, Sound sound) {
     if (frameSounds.add(sound)) { // only adds if not already present
       ActiveSound activeSound = new ActiveSound(sound, tick + getDuration());
-      if (!activeSounds.contains(activeSound)) {
+      if (!isPlaying(activeSound)) {
         if (isPlayable()) {
           startActiveSound(activeSound);
           frame.addMusicAnnotation(new MusicAnnotation(item, instrument, sound, Type.NEW));
@@ -100,6 +110,11 @@ public abstract class PolyphonicPlayer implements Player {
       }
     }
     activeSounds.removeAll(expiringSounds);
+  }
+
+  protected void stopSound(ActiveSound activeSound) {
+    synthesizer.releaseKey(channel, activeSound.getSound().getValue());
+    activeSounds.remove(activeSound);
   }
 
   private void stopActiveSounds() {
