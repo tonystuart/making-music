@@ -87,6 +87,8 @@ public class WindPlayer implements Player {
   private PitchBender pitchBender;
   private Synthesizer synthesizer;
   private boolean isPreemptive = true;
+  private Rect containingItem;
+  private Sound sound;
 
   public WindPlayer(Synthesizer synthesizer, Instrument instrument, int channel) {
     this.synthesizer = synthesizer;
@@ -102,11 +104,14 @@ public class WindPlayer implements Player {
   public void play(Frame frame, List<Rect> items, long tick) {
     if (items.size() == 0) {
       stopExpiringSounds(tick);
-    } else {
-      Rect containingItem = getContainingItem(items);
-      Sound sound = getSound(frame, containingItem);
-      if (sound.getValue() == currentValue) {
+      if (currentValue != 0) {
         frame.addMusicAnnotation(new MusicAnnotation(containingItem, instrument, sound, Type.ACTIVE));
+      }
+    } else {
+      containingItem = getContainingItem(items);
+      sound = getSound(frame, containingItem);
+      if (sound.getValue() == currentValue) {
+        frame.addMusicAnnotation(new MusicAnnotation(containingItem, instrument, sound, Type.DUPLICATE));
       } else {
         nextValue = sound.getValue();
         frame.addMusicAnnotation(new MusicAnnotation(containingItem, instrument, sound, Type.NEW));
