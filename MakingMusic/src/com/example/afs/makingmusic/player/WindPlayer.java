@@ -25,7 +25,9 @@ public class WindPlayer implements Player {
 
   private class PitchBender extends Thread {
 
+    private static final int BEND = 1000;
     private static final int CENTER = 8192;
+    private static final int INCREMENT = 200;
     private boolean terminated;
 
     public PitchBender(String instrumentName) {
@@ -34,36 +36,33 @@ public class WindPlayer implements Player {
 
     @Override
     public void run() {
+      int bend = CENTER;
+      int increment = 0;
+      long delay = 10000;
       while (!terminated) {
-        if (nextValue == 0) {
-          if (currentValue != 0) {
-            // play with current sound;
-          } else {
-            // nothing is playing
-          }
-        } else {
-          if (currentValue == 0) {
-            // nothing is playing, just start new sound
-            startNext();
-          } else {
-            // something is playing, transition to next note
-            int bend = CENTER;
-            int increment = nextValue > currentValue ? 10 : -10;
-            int thisValue = nextValue;
-            int i;
-            for (i = 0; i < 50 && (!isPreemptive || thisValue == nextValue); i++) {
-              synthesizer.bendPitch(channel, bend);
-              bend += increment;
-              pause(10);
+        if (nextValue != 0) {
+          if (bend == CENTER || isPreemptive) {
+            if (currentValue != 0) {
+              bend = CENTER - BEND;
+              increment = INCREMENT;
+              delay = 10;
             }
-            System.out.println("counter=" + i + ", bend=" + bend + ", increment=" + increment + ", thisValue=" + thisValue + ", current=" + currentValue);
             startNext();
+          } else {
+            System.out.println("Skipping preemptive note=" + nextValue);
           }
         }
-        pause(100);
+        if (bend != CENTER) {
+          bend += increment;
+          synthesizer.bendPitch(channel, bend);
+          System.out.println("bend=" + bend + ", increment=" + increment + ", current=" + currentValue + ", step=" + ((CENTER - bend) / INCREMENT));
+        } else {
+          delay = 10000;
+        }
+        pause(delay);
       }
       stopCurrent();
-      System.out.println("Terninating...");
+      System.out.println("Terminating...");
     }
 
     public void terminate() {
@@ -75,20 +74,21 @@ public class WindPlayer implements Player {
         sleep(millis);
       } catch (InterruptedException e) {
         // ignore
+        System.out.println("Interrupted!!!");
       }
     }
   }
 
   private int channel;
+  private Rect containingItem;
   private int currentValue;
   private long expirationTick;
   private Instrument instrument;
+  private boolean isPreemptive = true;
   private int nextValue;
   private PitchBender pitchBender;
-  private Synthesizer synthesizer;
-  private boolean isPreemptive = true;
-  private Rect containingItem;
   private Sound sound;
+  private Synthesizer synthesizer;
 
   public WindPlayer(Synthesizer synthesizer, Instrument instrument, int channel) {
     this.synthesizer = synthesizer;
@@ -114,6 +114,7 @@ public class WindPlayer implements Player {
         frame.addMusicAnnotation(new MusicAnnotation(containingItem, instrument, sound, Type.DUPLICATE));
       } else {
         nextValue = sound.getValue();
+        pitchBender.interrupt();
         frame.addMusicAnnotation(new MusicAnnotation(containingItem, instrument, sound, Type.NEW));
       }
       expirationTick = tick + getDuration();
@@ -124,6 +125,11 @@ public class WindPlayer implements Player {
   public void terminate() {
     stopCurrent();
     pitchBender.terminate();
+  }
+
+  @Override
+  public String toString() {
+    return "WindPlayer [instrument=" + instrument + ", channel=" + channel + "]";
   }
 
   private Rect getContainingItem(List<Rect> items) {
