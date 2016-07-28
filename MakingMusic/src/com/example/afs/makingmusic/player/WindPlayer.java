@@ -23,61 +23,10 @@ import com.example.afs.makingmusic.sound.Sound;
 
 public class WindPlayer implements Player {
 
-  private class PitchBender extends Thread {
-
-    private static final int BEND = 1000;
-    private static final int CENTER = 8192;
-    private static final int INCREMENT = 200;
-    private boolean terminated;
-
-    public PitchBender(String instrumentName) {
-      super("PitchBender " + instrumentName);
-    }
-
-    @Override
-    public void run() {
-      int bend = CENTER;
-      int increment = 0;
-      long delay = 10000;
-      while (!terminated) {
-        if (nextValue != 0) {
-          if (bend == CENTER || isPreemptive) {
-            if (currentValue != 0) {
-              bend = CENTER - BEND;
-              increment = INCREMENT;
-              delay = 10;
-            }
-            startNext();
-          } else {
-            System.out.println("Skipping preemptive note=" + nextValue);
-          }
-        }
-        if (bend != CENTER) {
-          bend += increment;
-          synthesizer.bendPitch(channel, bend);
-          System.out.println("bend=" + bend + ", increment=" + increment + ", current=" + currentValue + ", step=" + ((CENTER - bend) / INCREMENT));
-        } else {
-          delay = 10000;
-        }
-        pause(delay);
-      }
-      stopCurrent();
-      System.out.println("Terminating...");
-    }
-
-    public void terminate() {
-      terminated = true;
-    }
-
-    private void pause(long millis) {
-      try {
-        sleep(millis);
-      } catch (InterruptedException e) {
-        // ignore
-        System.out.println("Interrupted!!!");
-      }
-    }
-  }
+  private static final int BEND = 2000;
+  private static final int CENTER = 8192;
+  private static final long DELAY = 10;
+  private static final int INCREMENT = 200;
 
   private int channel;
   private Rect containingItem;
@@ -86,7 +35,6 @@ public class WindPlayer implements Player {
   private Instrument instrument;
   private boolean isPreemptive = true;
   private int nextValue;
-  private PitchBender pitchBender;
   private Sound sound;
   private Synthesizer synthesizer;
 
@@ -96,8 +44,6 @@ public class WindPlayer implements Player {
     this.channel = channel;
     int programIndex = instrument.getProgramIndex();
     synthesizer.changeProgram(channel, programIndex);
-    pitchBender = new PitchBender(instrument.getName());
-    pitchBender.start();
   }
 
   @Override
@@ -114,7 +60,29 @@ public class WindPlayer implements Player {
         frame.addMusicAnnotation(new MusicAnnotation(containingItem, instrument, sound, Type.DUPLICATE));
       } else {
         nextValue = sound.getValue();
-        pitchBender.interrupt();
+        int bend;
+        int increment;
+        if (nextValue > currentValue) {
+          bend = CENTER - BEND;
+          increment = INCREMENT;
+        } else {
+          bend = CENTER + BEND;
+          increment = -INCREMENT;
+        }
+        startNext();
+        long millis = System.currentTimeMillis();
+        int iterations = BEND / INCREMENT;
+        for (int i = 0; i < iterations; i++) {
+          bend += increment;
+          synthesizer.bendPitch(channel, bend);
+          System.out.println("currentValue=" + currentValue + ", bend=" + bend + ", increment=" + increment);
+          try {
+            Thread.sleep(DELAY);
+          } catch (InterruptedException e) {
+            // ignore
+          }
+        }
+        System.out.println("Elapsed time: " + (System.currentTimeMillis() - millis));
         frame.addMusicAnnotation(new MusicAnnotation(containingItem, instrument, sound, Type.NEW));
       }
       expirationTick = tick + getDuration();
@@ -124,7 +92,6 @@ public class WindPlayer implements Player {
   @Override
   public void terminate() {
     stopCurrent();
-    pitchBender.terminate();
   }
 
   @Override
