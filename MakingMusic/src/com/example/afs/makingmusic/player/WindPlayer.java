@@ -28,7 +28,7 @@ public class WindPlayer implements Player {
   private static final float GAIN_CENTER = 0.2f;
   private static final int PITCH_BEND = 1000;
   private static final int PITCH_CENTER = 8192;
-  private static final int PITCH_INCREMENT = 100;
+  private static final int PITCH_INCREMENT = 20;
 
   private int channel;
   private Rect containingItem;
