@@ -23,10 +23,12 @@ import com.example.afs.makingmusic.sound.Sound;
 
 public class WindPlayer implements Player {
 
-  private static final int BEND = 2000;
-  private static final int CENTER = 8192;
   private static final long DELAY = 10;
-  private static final int INCREMENT = 200;
+  private static final float GAIN_BEND = 0.1f;
+  private static final float GAIN_CENTER = 0.2f;
+  private static final int PITCH_BEND = 1000;
+  private static final int PITCH_CENTER = 8192;
+  private static final int PITCH_INCREMENT = 100;
 
   private int channel;
   private Rect containingItem;
@@ -63,19 +65,23 @@ public class WindPlayer implements Player {
         int bend;
         int increment;
         if (nextValue > currentValue) {
-          bend = CENTER - BEND;
-          increment = INCREMENT;
+          bend = PITCH_CENTER - PITCH_BEND;
+          increment = PITCH_INCREMENT;
         } else {
-          bend = CENTER + BEND;
-          increment = -INCREMENT;
+          bend = PITCH_CENTER + PITCH_BEND;
+          increment = -PITCH_INCREMENT;
         }
         startNext();
         long millis = System.currentTimeMillis();
-        int iterations = BEND / INCREMENT;
+        int iterations = PITCH_BEND / PITCH_INCREMENT;
+        float gain = GAIN_CENTER - GAIN_BEND;
+        float gainDelta = GAIN_BEND / iterations;
         for (int i = 0; i < iterations; i++) {
           bend += increment;
+          gain += gainDelta;
           synthesizer.bendPitch(channel, bend);
-          System.out.println("currentValue=" + currentValue + ", bend=" + bend + ", increment=" + increment);
+          synthesizer.setGain(gain);
+          System.out.println("currentValue=" + currentValue + ", bend=" + bend + ", increment=" + increment + ", gain=" + gain);
           try {
             Thread.sleep(DELAY);
           } catch (InterruptedException e) {
