@@ -18,7 +18,6 @@ import org.opencv.core.Rect;
 
 import com.example.afs.fluidsynth.Synthesizer;
 import com.example.afs.makingmusic.common.MulDiv;
-import com.example.afs.makingmusic.process.ActiveSound;
 import com.example.afs.makingmusic.process.Frame;
 import com.example.afs.makingmusic.process.MusicAnnotation;
 import com.example.afs.makingmusic.process.MusicAnnotation.Type;
@@ -26,6 +25,67 @@ import com.example.afs.makingmusic.sound.Instrument;
 import com.example.afs.makingmusic.sound.Sound;
 
 public abstract class PolyphonicPlayer implements Player {
+
+  public static class ActiveSound {
+
+    private Rect item;
+    private long offTime;
+    private Sound sound;
+
+    public ActiveSound(Rect item, Sound value, long offTime) {
+      this.item = item;
+      this.sound = value;
+      this.offTime = offTime;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null) {
+        return false;
+      }
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+      ActiveSound other = (ActiveSound) obj;
+      if (sound == null) {
+        if (other.sound != null) {
+          return false;
+        }
+      } else if (!sound.equals(other.sound)) {
+        return false;
+      }
+      return true;
+    }
+
+    public Rect getItem() {
+      return item;
+    }
+
+    public long getOffTime() {
+      return offTime;
+    }
+
+    public Sound getSound() {
+      return sound;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((sound == null) ? 0 : sound.hashCode());
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return "ActiveSound [sound=" + sound + ", offTime=" + offTime + ", item=" + item + "]";
+    }
+
+  }
 
   protected Set<ActiveSound> activeSounds = new HashSet<>();
   protected int channel;
@@ -41,7 +101,7 @@ public abstract class PolyphonicPlayer implements Player {
 
   @Override
   public void play(Frame frame, List<Rect> items, long tick) {
-    stopExpiredSounds(tick);
+    stopExpiredSounds(frame, tick);
     Set<Sound> frameSounds = new HashSet<>();
     for (Rect item : items) {
       Sound sound = getSound(frame, item);
@@ -79,7 +139,7 @@ public abstract class PolyphonicPlayer implements Player {
 
   protected void play(Set<Sound> frameSounds, Frame frame, Rect item, long tick, Sound sound) {
     if (frameSounds.add(sound)) { // only adds if not already present
-      ActiveSound activeSound = new ActiveSound(sound, tick + getDuration());
+      ActiveSound activeSound = new ActiveSound(item, sound, tick + getDuration());
       if (!isPlaying(activeSound)) {
         if (isPlayable()) {
           startActiveSound(activeSound);
@@ -101,12 +161,14 @@ public abstract class PolyphonicPlayer implements Player {
     activeSounds.add(activeSound);
   }
 
-  protected void stopExpiredSounds(long tick) {
+  protected void stopExpiredSounds(Frame frame, long tick) {
     List<ActiveSound> expiringSounds = new ArrayList<>(activeSounds.size());
     for (ActiveSound activeSound : activeSounds) {
       if (activeSound.getOffTime() < tick) {
         synthesizer.releaseKey(channel, activeSound.getSound().getValue());
         expiringSounds.add(activeSound);
+      } else {
+        frame.addMusicAnnotation(new MusicAnnotation(activeSound.getItem(), instrument, activeSound.getSound(), Type.ACTIVE));
       }
     }
     activeSounds.removeAll(expiringSounds);
