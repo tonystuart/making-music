@@ -14,6 +14,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.util.concurrent.BlockingQueue;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -39,24 +40,27 @@ public class ImageGenerator extends Step<Frame> {
   public void process(Frame frame) {
     Mat image = frame.getImageMatrix();
     for (MusicAnnotation musicAnnotation : frame.getMusicAnnotations()) {
-      Rect item = musicAnnotation.getItem();
+      Scalar color;
       Type type = musicAnnotation.getType();
       switch (type) {
       case NEW:
-        Imgproc.rectangle(image, item.br(), item.tl(), GREEN, 1);
+        color = GREEN;
         break;
       case ACTIVE:
-        Imgproc.rectangle(image, item.br(), item.tl(), BLUE, 1);
+        color = BLUE;
         break;
       case DUPLICATE:
-        Imgproc.rectangle(image, item.br(), item.tl(), YELLOW, 1);
+        color = YELLOW;
         break;
       case OVERFLOW:
-        Imgproc.rectangle(image, item.br(), item.tl(), RED, 1);
+        color = RED;
         break;
       default:
         throw new UnsupportedOperationException();
       }
+      Rect item = musicAnnotation.getItem();
+      Imgproc.rectangle(image, item.br(), item.tl(), color, 1);
+      Imgproc.putText(image, musicAnnotation.getInstrument().getName(), item.tl(), Core.FONT_HERSHEY_PLAIN, 1d, color);
     }
     BufferedImage bufferedImage = toBufferedImage(image);
     frame.setBufferedImage(bufferedImage);
