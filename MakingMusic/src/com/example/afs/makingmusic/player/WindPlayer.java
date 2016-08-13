@@ -28,14 +28,13 @@ public class WindPlayer implements Player {
   private static final float GAIN_CENTER = 0.2f;
   private static final int PITCH_BEND = 1000;
   private static final int PITCH_CENTER = 8192;
-  private static final int PITCH_INCREMENT = 20;
+  private static final int PITCH_INCREMENT = 40;
 
   private int channel;
   private Rect containingItem;
   private int currentValue;
   private long expirationTick;
   private Instrument instrument;
-  private boolean isPreemptive = true;
   private int nextValue;
   private Sound sound;
   private Synthesizer synthesizer;
