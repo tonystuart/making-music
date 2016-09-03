@@ -103,25 +103,18 @@ public class WebApp {
     server = new Server();
     SocketConnector connector = new SocketConnector();
     connector.setPort(PORT);
-    server.setConnectors(new Connector[] {
-      connector
-    });
+    server.setConnectors(new Connector[] { connector });
     DefaultServlet defaultServlet = new RedirectingDefaultServlet();
     ServletHolder defaultServletHolder = new ServletHolder(defaultServlet);
     defaultServletHolder.setInitParameter("resourceBase", getResourceBase());
     LOG.info("resourceBase=" + defaultServletHolder.getInitParameter("resourceBase"));
     ServletContextHandler context = new ServletContextHandler();
-    context.setWelcomeFiles(new String[] {
-      "MakingMusic.html"
-    });
+    context.setWelcomeFiles(new String[] { "MakingMusic.html" });
     context.addServlet(defaultServletHolder, "/");
     context.addServlet(CurrentFrameServlet.class, "/currentFrame.jpg");
     context.addServlet(RestServlet.class, "/rest/v1/*");
     HandlerCollection handlers = new HandlerCollection();
-    handlers.setHandlers(new Handler[] {
-        context,
-        new DefaultHandler()
-    });
+    handlers.setHandlers(new Handler[] { context, new DefaultHandler() });
     server.setHandler(handlers);
   }
 
