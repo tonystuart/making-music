@@ -38,11 +38,13 @@ public class WindPlayer implements Player {
   private int nextValue;
   private Sound sound;
   private Synthesizer synthesizer;
+  private int instrumentCount;
 
-  public WindPlayer(Synthesizer synthesizer, Instrument instrument, int channel) {
+  public WindPlayer(Synthesizer synthesizer, Instrument instrument, int channel, int instrumentCount) {
     this.synthesizer = synthesizer;
     this.instrument = instrument;
     this.channel = channel;
+    this.instrumentCount = instrumentCount;
     int programIndex = instrument.getProgramIndex();
     synthesizer.changeProgram(channel, programIndex);
   }
@@ -79,7 +81,9 @@ public class WindPlayer implements Player {
           bend += increment;
           gain += gainDelta;
           synthesizer.bendPitch(channel, bend);
-          synthesizer.setGain(gain);
+          if (instrumentCount == 1) {
+            synthesizer.setGain(gain);
+          }
           System.out.println("currentValue=" + currentValue + ", bend=" + bend + ", increment=" + increment + ", gain=" + gain);
           try {
             Thread.sleep(DELAY);

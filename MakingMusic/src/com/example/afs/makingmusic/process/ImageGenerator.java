@@ -14,7 +14,6 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.util.concurrent.BlockingQueue;
 
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -60,7 +59,7 @@ public class ImageGenerator extends Step<Frame> {
       }
       Rect item = musicAnnotation.getItem();
       Imgproc.rectangle(image, item.br(), item.tl(), color, 1);
-      Imgproc.putText(image, musicAnnotation.getInstrument().getName(), item.tl(), Core.FONT_HERSHEY_PLAIN, 1d, color);
+      //Imgproc.putText(image, musicAnnotation.getInstrument().getName(), item.tl(), Core.FONT_HERSHEY_PLAIN, 1d, color);
     }
     BufferedImage bufferedImage = toBufferedImage(image);
     frame.setBufferedImage(bufferedImage);

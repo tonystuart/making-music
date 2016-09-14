@@ -105,7 +105,7 @@ public class MusicGenerator extends Step<Frame> {
         nextChannel++;
       }
       Instrument instrument = instruments[i];
-      Player player = createPlayer(instrument, channel);
+      Player player = createPlayer(instrument, channel, instruments.length);
       players.add(player);
     }
   }
@@ -117,7 +117,7 @@ public class MusicGenerator extends Step<Frame> {
     players.clear();
   }
 
-  private Player createPlayer(Instrument instrument, int channel) {
+  private Player createPlayer(Instrument instrument, int channel, int instrumentCount) {
     Player player;
     switch (instrument.getType()) {
     case DRUM:
@@ -130,7 +130,7 @@ public class MusicGenerator extends Step<Frame> {
       player = new StringPlayer(synthesizer, instrument, channel);
       break;
     case WIND:
-      player = new WindPlayer(synthesizer, instrument, channel);
+      player = new WindPlayer(synthesizer, instrument, channel, instrumentCount);
       break;
     default:
       throw new UnsupportedOperationException();
