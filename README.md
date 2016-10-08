@@ -1,6 +1,6 @@
 # Overview
 
-Making Music While the Sun Shines is an experiment in music composition and performance. It converts a participant's motion into music. It was developed as in art installation for the 4Culture Tech Specific program in Seattle. 4Culture is the Cultural Development Authority of King County.
+Making Music While the Sun Shines is an experiment in music composition and performance. It converts a participant's motion into music. It was developed as an art installation for the 4Culture Tech Specific program in Seattle. 4Culture is the Cultural Development Authority of King County.
 
 http://www.4culture.org/
 
